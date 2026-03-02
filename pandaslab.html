@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataMastery | Pandas Lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs/loader.js"></script>
+    <script>var _tempDefine = window.define; window.define = undefined;</script>
+    <script src="https://cdn.jsdelivr.net/npm/lucide/dist/umd/lucide.min.js"></script>
+    <script>window.define = _tempDefine;</script>
+    
+    <style>
+        :root {
+            /* Matched to DataMastery Hub */
+            --bg-primary: #0b0f19;
+            --bg-secondary: #131826;
+            --bg-tertiary: #1e2532;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --border-color: #2a3143;
+            
+            --sidebar-width: 320px;
+            --transition-speed: 0.3s;
+            
+            /* Pandas Pink/Cyan Accent */
+            --accent-main: #ec4899; 
+            --accent-blue: #06b6d4;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body { 
+            font-family: 'Outfit', sans-serif; 
+            background: var(--bg-primary); color: var(--text-primary); 
+            height: 100vh; overflow: hidden; display: flex; flex-direction: column; 
+            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        /* --- GLOBAL NAVBAR --- */
+        .global-nav {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1rem 4rem; background: rgba(11, 15, 25, 0.95); backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color); flex-shrink: 0; z-index: 9999;
+        }
+        .global-nav .logo { font-size: 1.5rem; font-weight: 700; color: #818cf8; text-decoration: none; }
+        .global-nav .logo span { color: #f8fafc; }
+        .global-nav .nav-links { display: flex; gap: 2rem; font-weight: 500; font-size: 0.95rem; }
+        .global-nav .nav-links a { color: var(--text-secondary); text-decoration: none; transition: 0.2s; }
+        .global-nav .nav-links a:hover { color: #fff; }
+        .btn-back { background: #2a3143; color: #fff; padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; font-size: 0.85rem; transition: 0.2s;}
+        .btn-back:hover { background: #3b445e; }
+
+        /* --- LAB HEADER --- */
+        .lab-header { background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); display: flex; flex-direction: column; flex-shrink: 0; }
+        .header-top { display: flex; align-items: center; justify-content: space-between; padding: 0 4rem; height: 52px; gap: 12px; }
+        .header-bottom { width: 100%; padding: 0 4rem 8px; display: flex; align-items: center; gap: 12px; }
+        
+        .lab-title { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 1.1rem; color: var(--text-primary); }
+        
+        /* Progress & Coins */
+        .progress-bar-bg { height: 6px; background: rgba(0,0,0,0.5); border-radius: 3px; overflow: hidden; flex: 1; }
+        .progress-bar-fill { height: 100%; background: var(--accent-main); width: 0%; transition: width 0.5s ease; }
+        .coin-container { display: flex; align-items: center; gap: 8px; background: rgba(245, 158, 11, 0.1); padding: 4px 12px; border-radius: 20px; border: 1px solid rgba(245, 158, 11, 0.3); color: #f59e0b; font-weight: 700; font-size: 0.85rem; }
+
+        /* --- WORKSPACE --- */
+        .main-wrapper { display: flex; flex: 1; overflow: hidden; }
+        aside { width: var(--sidebar-width); background: var(--bg-secondary); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; overflow-y: auto; }
+        .content-area { flex: 1; display: flex; flex-direction: column; background: var(--bg-primary); }
+        .workspace { display: grid; grid-template-columns: 1fr 1.2fr; flex: 1; overflow: hidden; }
+        
+        /* Sidebar Elements */
+        .sidebar-summary { padding: 12px 16px; background: var(--bg-tertiary); border-bottom: 1px solid var(--border-color); font-size: 0.72rem; color: var(--text-muted); display: flex; align-items: center; gap: 8px; }
+        .category-group { border-bottom: 1px solid var(--border-color); }
+        .category-header { padding: 12px 16px; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; color: var(--text-secondary); display: flex; align-items: center; justify-content: space-between; cursor: pointer; background: var(--bg-secondary); }
+        .category-header:hover { background: var(--bg-tertiary); }
+        
+        .cat-meta { display: flex; align-items: center; gap: 8px; }
+        .cat-badge { font-size: 0.65rem; font-weight: 700; padding: 2px 7px; border-radius: 20px; background: var(--bg-tertiary); color: var(--text-muted); border: 1px solid var(--border-color); }
+        .cat-badge.has-progress { background: rgba(16, 185, 129, 0.12); color: var(--accent-green); border-color: rgba(16, 185, 129, 0.3); }
+        .cat-badge.complete { background: rgba(16, 185, 129, 0.2); color: var(--accent-green); border-color: var(--accent-green); }
+
+        .task-list { max-height: 0; overflow: hidden; transition: max-height 0.35s; background: var(--bg-primary); }
+        .category-group.open .task-list { max-height: 800px; }
+        .exercise-item { padding: 9px 16px 9px 28px; cursor: pointer; display: flex; align-items: center; gap: 10px; font-size: 0.85rem; border-left: 3px solid transparent; color: var(--text-secondary); }
+        .exercise-item:hover { background: rgba(255,255,255,0.04); color: var(--text-primary); }
+        .exercise-item.active { background: rgba(236, 72, 153, 0.15); border-left-color: var(--accent-main); color: #f9a8d4; }
+        .exercise-item.completed { color: var(--accent-green); }
+
+        .status-dot { width: 7px; height: 7px; border-radius: 50%; background-color: var(--border-color); flex-shrink: 0; }
+        .completed .status-dot { background-color: var(--accent-green); box-shadow: 0 0 6px var(--accent-green); }
+
+        /* Left Pane (Instructions) */
+        .instructions-pane { padding: 32px; overflow-y: auto; border-right: 1px solid var(--border-color); }
+        #task-title { font-size: 1.5rem; margin-bottom: 16px; font-weight: 700; }
+        .instruction-text { color: var(--text-secondary); line-height: 1.7; font-size: 0.95rem; margin-bottom: 24px; }
+        .instruction-text code { background-color: var(--bg-tertiary); padding: 2px 6px; border-radius: 4px; font-family: 'Fira Code', monospace; color: #fbcfe8; font-size: 0.9em; }
+        
+        .io-card { background: var(--bg-secondary); border-radius: 8px; border: 1px solid var(--border-color); margin-bottom: 16px; overflow: hidden; }
+        .io-card-header { padding: 8px 16px; background: var(--bg-tertiary); font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; }
+        .io-card-content { padding: 16px; font-family: 'Fira Code', monospace; font-size: 0.85rem; color: var(--accent-green); white-space: pre-wrap; }
+        
+        /* Right Pane (Editor & Terminal) */
+        .editor-section { display: flex; flex-direction: column; overflow: hidden; }
+        .toolbar { height: 48px; background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: flex-end; padding: 0 16px; gap: 12px; }
+        #editor-container { flex: 1; }
+        .terminal { height: 260px; background: #000; border-top: 1px solid var(--border-color); display: flex; flex-direction: column; }
+        .terminal-header { padding: 8px 16px; background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); display: flex; justify-content: space-between; }
+        #terminal-output { flex: 1; padding: 16px; overflow-y: auto; font-family: 'Fira Code', monospace; font-size: 0.85rem; line-height: 1.5; color: #fff; white-space: pre-wrap;}
+
+        .text-error { color: var(--accent-red); }
+        .text-success { color: var(--accent-green); }
+        .text-system { color: var(--accent-blue); }
+
+        /* Buttons & Utils */
+        .btn { padding: 6px 14px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 8px; border: none; }
+        .btn-primary { background: var(--accent-main); color: #fff; }
+        .btn-primary:hover:not(:disabled) { opacity: 0.9; }
+        .btn-success { background: var(--accent-green); color: #fff; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        @keyframes pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
+        .loading-pulse { animation: pulse 1.5s infinite ease-in-out; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .spin { animation: spin 1s linear infinite; }
+
+        /* GLOBAL FOOTER */
+        .global-footer { height: 36px; background: rgba(11, 15, 25, 0.95); border-top: 1px solid var(--border-color); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; color: var(--text-muted); flex-shrink: 0; }
+        
+        /* Mobile Overlay */
+        .mobile-warning { display: none; position: fixed; inset: 0; background: var(--bg-primary); z-index: 10000; padding: 40px; text-align: center; justify-content: center; align-items: center; flex-direction: column; }
+        @media(max-width:1024px) { .mobile-warning { display: flex; } }
+
+        /* Reward Overlay */
+        .reward-overlay { position: fixed; inset: 0; background: rgba(11, 15, 25, 0.9); z-index: 2000; display: none; justify-content: center; align-items: center; flex-direction: column; backdrop-filter: blur(10px); }
+        .reward-card { background: var(--bg-secondary); border: 2px solid var(--accent-main); padding: 48px; border-radius: 32px; text-align: center; animation: reward-pop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); max-width: 420px; width: 90%; box-shadow: 0 0 60px rgba(236, 72, 153, 0.4); }
+        @keyframes reward-pop { 0% { transform: scale(0.4) rotate(-5deg); opacity: 0; } 100% { transform: scale(1) rotate(0deg); opacity: 1; } }
+        .reward-coins { font-size: 3.5rem; font-weight: 900; color: #f59e0b; margin: 24px 0; display: flex; align-items: center; justify-content: center; gap: 16px; text-shadow: 0 0 20px rgba(245, 158, 11, 0.5); }
+        .coin-float { animation: coin-float 2s infinite ease-in-out; }
+        @keyframes coin-float { 0%, 100% { transform: translateY(0) rotateY(0deg); } 50% { transform: translateY(-15px) rotateY(180deg); } }
+    </style>
+</head>
+<body>
+
+    <div class="mobile-warning">
+        <i data-lucide="monitor" size="48" style="color:var(--accent-main);margin-bottom:24px;"></i>
+        <h2>Desktop Only Experience</h2>
+        <p style="color:var(--text-secondary);margin-top:12px;">This interactive environment requires a desktop browser.</p>
+    </div>
+
+    <nav class="global-nav">
+        <a href="index.html" class="logo">Data<span>Mastery</span></a>
+        <div class="nav-links">
+            <a href="index.html#modules">Modules</a>
+            <a href="index.html#progress">Dashboard</a>
+        </div>
+        <a href="index.html" class="btn-back">&larr; Back to Hub</a>
+    </nav>
+
+    <div class="lab-header">
+        <div class="header-top">
+            <div class="lab-title">
+                <i data-lucide="table-2" style="color: var(--accent-main);"></i> Pandas Interactive Lab
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+                <div id="coin-display" class="coin-container"><i data-lucide="coins" size="16"></i><span id="coin-balance">0</span></div>
+                <div id="pyodide-status" class="btn btn-primary loading-pulse" style="background:var(--bg-tertiary); color: #fff; pointer-events:none;">
+                    <i data-lucide="loader-2" class="spin"></i> Loading Engine...
+                </div>
+            </div>
+        </div>
+        <div class="header-bottom">
+            <span style="font-size:0.7rem;color:var(--text-muted);" id="progress-percent">0%</span>
+            <div class="progress-bar-bg"><div id="progress-bar" class="progress-bar-fill"></div></div>
+            <span style="font-size:0.7rem;color:var(--text-muted);" id="progress-fraction">0 Exercises</span>
+        </div>
+    </div>
+
+    <div class="main-wrapper">
+        <aside id="sidebar"></aside>
+        
+        <main class="content-area">
+            <div class="workspace">
+                <div class="instructions-pane">
+                    <div id="task-category" style="font-size:0.8rem; color:var(--accent-main); font-weight:600; margin-bottom:8px; text-transform:uppercase;">Category</div>
+                    <h1 id="task-title">Loading Challenge...</h1>
+                    <div id="task-instructions" class="instruction-text"></div>
+                    
+                    <div class="io-card">
+                        <div class="io-card-header">Expected Output</div>
+                        <div id="task-output" class="io-card-content"></div>
+                    </div>
+                    
+                    <div id="success-message" style="display:none;background:rgba(16,185,129,0.1);border:1px solid var(--accent-green);padding:20px;border-radius:12px;margin-top:24px;">
+                        <h3 style="color:var(--accent-green);display:flex;align-items:center;gap:8px;"><i data-lucide="check-circle"></i> Excellent!</h3>
+                        <p style="margin-top:8px;font-size:0.9rem;color:var(--text-secondary);">You've mastered this concept.</p>
+                        <button id="next-btn" class="btn btn-success" style="margin-top:16px;width:100%;justify-content:center;">Next Exercise &rarr;</button>
+                    </div>
+                </div>
+                
+                <div class="editor-section">
+                    <div class="toolbar">
+                        <div style="flex:1;display:flex;align-items:center;gap:8px;color:var(--text-muted);font-size:0.75rem;"><i data-lucide="file-code" size="14"></i> script.py</div>
+                        <button id="run-btn" class="btn btn-primary" disabled><i data-lucide="play" size="14"></i> Run Code</button>
+                    </div>
+                    <div id="editor-container"></div>
+                    <div class="terminal">
+                        <div class="terminal-header"><span>OUTPUT CONSOLE</span><span id="terminal-status">Ready</span></div>
+                        <pre id="terminal-output"><span style="color:#888">Initializing Pyodide...</span></pre>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="reward-overlay" class="reward-overlay">
+        <div class="reward-card">
+            <h2 style="font-size: 1.8rem; color: var(--accent-main);">CHALLENGE SOLVED!</h2>
+            <p style="color: var(--text-secondary); margin-top: 12px;">You've earned some coins!</p>
+            <div class="reward-coins">
+                <i data-lucide="coins" class="coin-float" size="48"></i> +5
+            </div>
+            <button class="btn btn-primary" style="width: 100%; height: 50px; justify-content: center; font-size: 1rem;"
+                onclick="document.getElementById('reward-overlay').style.display = 'none';">
+                CONTINUE TO NEXT
+            </button>
+        </div>
+    </div>
+
+    <footer class="global-footer">
+        DataMastery Hub | Ideation & Development by Satyaki Das
+    </footer>
+
+    <script>
+        // ==========================================
+        // 1. CURRICULUM (30 Interactive Pandas Tasks)
+        // ==========================================
+        const curriculum = [
+            {
+                name: "1. Series Basics",
+                tasks: [
+                    {
+                        id: 1, title: "Create a Series",
+                        instructions: "Import <code>pandas as pd</code>. Create a Series from the list <code>[10, 20, 30]</code> and assign it to <code>s</code>.",
+                        starter: "import pandas as pd\n\n# Your code here\n",
+                        expected: "0    10\n1    20\n2    30\ndtype: int64",
+                        validation: `\ntry:\n  assert 's' in locals() or 's' in globals()\n  assert list(s.values) == [10,20,30], "Values must be [10, 20, 30]"\n  print("---TEST_PASSED---")\nexcept Exception as e: print(f"TEST_ERROR: {e}")`
+                    },
+                    {
+                        id: 2, title: "Custom Index",
+                        instructions: "Create a Series <code>s</code> containing <code>[100, 200, 300]</code> with a custom index of <code>['a', 'b', 'c']</code>.",
+                        starter: "import pandas as pd\n\n",
+                        expected: "a    100\nb    200\nc    300\ndtype: int64",
+                        validation: `\ntry:\n  assert list(s.index) == ['a','b','c'], "Index must be ['a','b','c']"\n  assert list(s.values) == [100,200,300]\n  print("---TEST_PASSED---")\nexcept Exception as e: print(f"TEST_ERROR: {e}")`
+                    },
+                    {
+                        id: 3, title: "Series from Dict",
+                        instructions: "Create a Series <code>s</code> from the dictionary <code>{'x': 1, 'y': 2, 'z': 3}</code>.",
+                        starter: "import pandas as pd\nd = {'x': 1, 'y': 2, 'z': 3}\n\n",
+                        expected: "x    1\ny    2\nz    3\ndtype: int64",
+                        validation: `\ntry:\n  assert list(s.index) == ['x','y','z'], "Keys must be index"\n  assert list(s.values) == [1,2,3]\n  print("---TEST_PASSED---")\nexcept Exception as e: print(f"TEST_ERROR: {e}")`
+                    },
+                    {
+                        id: 4, title: "Series Arithmetic",
+                        instructions: "Given <code>s = pd.Series([1, 2, 3])</code>, multiply the entire series by 2 and assign to <code>result</code>.",
+                        starter: "import pandas as pd\ns = pd.Series([1, 2, 3])\n\n",
+                        expected: "0    2\n1    4\n2    6\ndtype: int64",
+                        validation: `\ntry:\n  assert list(result.values) == [2,4,6], "Did you multiply by 2?"\n  print("---TEST_PASSED---")\nexcept Exception as e: print(f"TEST_ERROR: {e}")`
+                    },
+                    {
+                        id: 5, title: "Series Name",
+                        instructions: "Create a Series <code>s = pd.Series([5, 10])</code> and set its <code>name</code> argument to <code>'scores'</code>.",
+                        starter: "import pandas as pd\n\n",
+                        expected: "0     5\n1    10\nName: scores, dtype: int64",
+                        validation: `\ntry:\n  assert s.name == 'scores', "Series name must be 'scores'"\n  print("---TEST_PASSED---")\nexcept Exception as e: print(f"TEST_ERROR: {e}")`
+                    }
+                ]
+            },
+            {
+                name: "2. DataFrame Creation",
+                tasks: [
+                    {
+                        id: 6, title: "DataFrame from Dict",
+                        instructions: "Create a DataFrame from <code>{'Name': ['Alice','Bob'], 'Age': [25, 30]}</code>. Assign to <code>df</code>.",
+                        starter: "import pandas as pd\ndata = {'Name': ['Alice','Bob'], 'Age': [25, 30]}\n\n",
+                        expected: "    Name  Age\n0  Alice   25\n1    Bob   30",
+                        validation: `\ntry:\n  assert list(df['Name']) == ['Alice','Bob']\n  assert list(df['Age']) == [25,30]\n  print("---TEST_PASSED---")\nexcept Exception as e: print(f"TEST_ERROR: {e}")`
+                    },
+                    {
+                        id: 7, title: "DataFrame Shape",
+                        instructions: "Create any DataFrame with <b>3 rows and 2 columns</b>. Assign to <code>df</code>.",
+                        starter: "import pandas as pd\n\n",
+                        expected: "(3, 2)",
+                        validation: `\ntry:\n  assert df.shape == (3, 2), f"Shape must be (3, 2), got {df.shape}"\n  print("---TEST_PASSED---")\nexcept Exception as e: print(f"TEST_ERROR: {e}")`
+                    },
+                    {
+                        id: 8, title: "DataFrame Columns",
+                        instructions: "Create a DataFrame with columns <code>['City', 'Population']</code>. Assign to <code>df</code>.",
+                        starter: "import pandas as pd\n\n",
+                        expected: "Columns: ['City', 'Population']",
+                        validation: `\ntry:\n  assert list(df.columns) == ['City','Population'], "Columns incorrect"\n  print("---TEST_PASSED---")\nexcept Exception as e: print(f"TEST_ERROR: {e}")`
+                    },
+                    {
+                        id: 9, title: "Custom Row Index",
+                        instructions: "Create a DataFrame with <code>index=['r1','r2']</code> and any 2 columns. Assign to <code>df</code>.",
+                        starter: "import pandas as pd\n\n",
+                        expected: "Index: ['r1', 'r2']",
+                        validation: `\ntry:\n  assert list(df.index) == ['r1','r2'], "Index incorrect"\n  print("---TEST_PASSED---")\nexcept Exception as e: print(f"TEST_ERROR: {e}")`
+                    },
+                    {
+                        id: 10, title: "DataFrame dtypes",
+                        instructions: "Create a DataFrame <code>df</code> with a <code>str</code> column 'Name' and an <code>int</code> column 'Score'.",
+                        starter: "import pandas as pd\n\n",
+                        expected: "Name     object\nScore     int64\ndtype: object",
+                        validation: `\ntry:\n  import numpy as np\n  assert 'Name' in df.columns and 'Score' in df.columns\n  assert np.issubdtype(df['Score'].dtype, np.integer), "Score must be int"\n  print("---TEST_PASSED---")\nexcept Exception as e: print(f"TEST_ERROR: {e}")`
+                    }
+                ]
+            },
+            {
+                name: "3. Selection & Filtering",
+                tasks: [
+                    {
+                        id: 11, title: "Select a Column",
+                        instructions: "Given <code>df</code> with columns 'A' and 'B', select column 'A' and assign to <code>col</code>.",
+                        starter: "import pandas as pd\ndf = pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6]})\n\n",
+                        expected: "0    1\n1    2\n2    3\nName: A, dtype: int64",
+                        validation: `\ntry:\n  assert list(col.values) == [1, 2, 3], "col must be column A"\n  print("---TEST_PASSED---")\nexcept Exception as e: print(f"TEST_ERROR: {e}")`
+                    },
+                    {
+                        id: 12, title: "Select Multiple Columns",
+                        instructions: "From <code>df</code> (columns A, B, C), select columns <code>['A','C']</code> and assign to <code>subset</code>.",
+                        starter: "import pandas as pd\ndf = pd.DataFrame({'A':[1,2],'B':[3,4],'C':[5,6]})\n\n",
+                        expected: "   A  C\n0  1  5\n1  2  6",
+                        validation: `\ntry:\n  assert list(subset.columns) == ['A','C'], "Must select A and C"\n  print("---TEST_PASSED---")\nexcept Exception as e: print(f"TEST_ERROR: {e}")`
+                    },
+                    {
+                        id: 13, title: "Boolean Filtering",
+                        instructions: "Filter <code>df</code> to keep only rows where <code>Age > 25</code>. Assign to <code>filtered</code>.",
+                        starter: "import pandas as pd\ndf = pd.DataFrame({'Name':['Alice','Bob','Carol'],'Age':[23,28,31]})\n\n",
+                        expected: "    Name  Age\n1    Bob   28\n2  Carol   31",
+                        validation: `\ntry:\n  assert list(filtered['Age']) == [28, 31], "Must keep rows where Age > 25"\n  print("---TEST_PASSED---")\nexcept Exception as e: print(f"TEST_ERROR: {e}")`
+                    },
+                    {
+                        id: 14, title: "loc Selector",
+                        instructions: "Use <code>.loc</code> to select the row with index label <code>'b'</code> from <code>df</code>. Assign to <code>row</code>.",
+                        starter: "import pandas as pd\ndf = pd.DataFrame({'X':[10,20,30],'Y':[4,5,6]}, index=['a','b','c'])\n\n",
+                        expected: "Row b: X=20, Y=5",
+                        validation: `\ntry:\n  assert row['X'] == 20 and row['Y'] == 5, "Must select row b"\n  print("---TEST_PASSED---")\nexcept Exception as e: print(f"TEST_ERROR: {e}")`
+                    },
+                    {
+                        id: 15, title: "iloc Selector",
+                        instructions: "Use <code>.iloc[0]</code> to get the first row of <code>df</code>. Assign to <code>row</code>.",
+                        starter: "import pandas as pd\ndf = pd.DataFrame({'A':[100,200],'B':[300,400]})\n\n",
+                        expected: "A    100\nB    300\nName: 0, dtype: int64",
+                        validation: `\ntry:\n  assert row['A'] == 100 and row['B'] == 300, "Must select first row"\n  print("---TEST_PASSED---")\nexcept Exception as e: print(f"TEST_ERROR: {e}")`
+                    }
+                ]
+            },
+            {
+                name: "4. Data Manipulation",
+                tasks: [
+                    {
+                        id: 16, title: "Add a Column",
+                        instructions: "Add a new column named <code>'Total'</code> to <code>df</code> which is equal to <code>A + B</code>.",
+                        starter: "import pandas as pd\ndf = pd.DataFrame({'A':[1,2,3],'B':[4,5,6]})\n\n",
+                        expected: "   A  B  Total\n0  1  4      5\n1  2  5      7\n2  3  6      9",
+                        validation: `\ntry:\n  assert 'Total' in df.columns, "Column 'Total' not found"\n  assert list(df['Total']) == [5, 7, 9], "Total must be A+B"\n  print("---TEST_PASSED---")\nexcept Exception as e: print(f"TEST_ERROR: {e}")`
+                    },
+                    {
+                        id: 17, title: "Drop a Column",
+                        instructions: "Drop column <code>'B'</code> from <code>df</code>. Assign result back to <code>df</code>.",
+                        starter: "import pandas as pd\ndf = pd.DataFrame({'A':[1,2],'B':[3,4],'C':[5,6]})\n\n",
+                        expected: "Columns: ['A', 'C']",
+                        validation: `\ntry:\n  assert 'B' not in df.columns, "Column B must be dropped"\n  assert 'A' in df.columns and 'C' in df.columns\n  print("---TEST_PASSED---")\nexcept Exception as e: print(f"TEST_ERROR: {e}")`
+                    },
+                    {
+                        id: 18, title: "Rename Columns",
+                        instructions: "Rename column <code>'A'</code> to <code>'Score'</code> in <code>df</code>. Use <code>rename()</code>.",
+                        starter: "import pandas as pd\ndf = pd.DataFrame({'A':[10,20],'B':[30,40]})\n\n",
+                        expected: "Columns: ['Score', 'B']",
+                        validation: `\ntry:\n  assert 'Score' in df.columns, "Must rename A to Score"\n  assert 'A' not in df.columns, "A must be gone"\n  print("---TEST_PASSED---")\nexcept Exception as e: print(f"TEST_ERROR: {e}")`
+                    },
+                    {
+                        id: 19, title: "Sort by Column",
+                        instructions: "Sort <code>df</code> by column <code>'Age'</code> ascending. Assign to <code>sorted_df</code>.",
+                        starter: "import pandas as pd\ndf = pd.DataFrame({'Name':['Bob','Alice','Carol'],'Age':[30,23,28]})\n\n",
+                        expected: "Sorted: Alice, Carol, Bob",
+                        validation: `\ntry:\n  assert list(sorted_df['Age']) == [23, 28, 30], "Must be sorted ascending"\n  print("---TEST_PASSED---")\nexcept Exception as e: print(f"TEST_ERROR: {e}")`
+                    },
+                    {
+                        id: 20, title: "Reset Index",
+                        instructions: "Filter <code>df</code> where <code>Score > 50</code>, then chain <code>.reset_index(drop=True)</code> to fix the index. Assign to <code>result</code>.",
+                        starter: "import pandas as pd\ndf = pd.DataFrame({'Name':['A','B','C'],'Score':[40,80,60]})\n\n",
+                        expected: "  Name  Score\n0    B     80\n1    C     60",
+                        validation: `\ntry:\n  assert list(result['Score']) == [80, 60], "Must filter Score > 50"\n  assert list(result.index) == [0, 1], "Index must be reset"\n  print("---TEST_PASSED---")\nexcept Exception as e: print(f"TEST_ERROR: {e}")`
+                    }
+                ]
+            },
+            {
+                name: "5. Aggregation & GroupBy",
+                tasks: [
+                    {
+                        id: 21, title: "Sum a Column",
+                        instructions: "Compute the sum of column <code>'Sales'</code> in <code>df</code>. Assign to <code>total</code>.",
+                        starter: "import pandas as pd\ndf = pd.DataFrame({'Sales':[100,200,150]})\n\n",
+                        expected: "450",
+                        validation: `\ntry:\n  assert total == 450, f"Sum must be 450, got {total}"\n  print("---TEST_PASSED---")\nexcept Exception as e: print(f"TEST_ERROR: {e}")`
+                    },
+                    {
+                        id: 22, title: "Mean of a Column",
+                        instructions: "Compute the mean of column <code>'Score'</code>. Assign to <code>avg</code>.",
+                        starter: "import pandas as pd\ndf = pd.DataFrame({'Score':[80,90,70,100]})\n\n",
+                        expected: "85.0",
+                        validation: `\ntry:\n  assert avg == 85.0, f"Mean must be 85.0, got {avg}"\n  print("---TEST_PASSED---")\nexcept Exception as e: print(f"TEST_ERROR: {e}")`
+                    },
+                    {
+                        id: 23, title: "GroupBy Sum",
+                        instructions: "Group <code>df</code> by <code>'Category'</code> and sum the <code>'Revenue'</code> column. Assign to <code>result</code>.",
+                        starter: "import pandas as pd\ndf = pd.DataFrame({'Category':['A','B','A','B'],'Revenue':[100,200,150,250]})\n\n",
+                        expected: "Category\nA    250\nB    450\nName: Revenue, dtype: int64",
+                        validation: `\ntry:\n  assert result['A'] == 250, "A revenue must be 250"\n  assert result['B'] == 450, "B revenue must be 450"\n  print("---TEST_PASSED---")\nexcept Exception as e: print(f"TEST_ERROR: {e}")`
+                    },
+                    {
+                        id: 24, title: "GroupBy Mean",
+                        instructions: "Group <code>df</code> by <code>'Dept'</code> and compute mean of <code>'Salary'</code>. Assign to <code>result</code>.",
+                        starter: "import pandas as pd\ndf = pd.DataFrame({'Dept':['HR','IT','HR','IT'],'Salary':[50,80,60,90]})\n\n",
+                        expected: "Dept\nHR    55.0\nIT    85.0\nName: Salary, dtype: float64",
+                        validation: `\ntry:\n  assert result['HR'] == 55.0, "HR mean must be 55.0"\n  assert result['IT'] == 85.0, "IT mean must be 85.0"\n  print("---TEST_PASSED---")\nexcept Exception as e: print(f"TEST_ERROR: {e}")`
+                    },
+                    {
+                        id: 25, title: "Value Counts",
+                        instructions: "Use <code>.value_counts()</code> on column <code>'Color'</code> in <code>df</code>. Assign to <code>counts</code>.",
+                        starter: "import pandas as pd\ndf = pd.DataFrame({'Color':['Red','Blue','Red','Green','Blue','Red']})\n\n",
+                        expected: "Color\nRed      3\nBlue     2\nGreen    1\ndtype: int64",
+                        validation: `\ntry:\n  assert counts['Red'] == 3, "Red count must be 3"\n  assert counts['Blue'] == 2, "Blue count must be 2"\n  assert counts['Green'] == 1, "Green count must be 1"\n  print("---TEST_PASSED---")\nexcept Exception as e: print(f"TEST_ERROR: {e}")`
+                    }
+                ]
+            },
+            {
+                name: "6. Missing Data & Merging",
+                tasks: [
+                    {
+                        id: 26, title: "Detect NaN",
+                        instructions: "Check for missing values in <code>df</code> with <code>.isnull().sum()</code>. Assign to <code>missing</code>.",
+                        starter: "import pandas as pd\nimport numpy as np\ndf = pd.DataFrame({'A':[1,np.nan,3],'B':[np.nan,2,np.nan]})\n\n",
+                        expected: "A    1\nB    2\ndtype: int64",
+                        validation: `\ntry:\n  assert missing['A'] == 1, "A must have 1 NaN"\n  assert missing['B'] == 2, "B must have 2 NaNs"\n  print("---TEST_PASSED---")\nexcept Exception as e: print(f"TEST_ERROR: {e}")`
+                    },
+                    {
+                        id: 27, title: "Fill NaN",
+                        instructions: "Fill all NaN values in <code>df</code> with <code>0</code> using <code>.fillna()</code>. Assign to <code>filled</code>.",
+                        starter: "import pandas as pd\nimport numpy as np\ndf = pd.DataFrame({'A':[1,np.nan],'B':[np.nan,4]})\n\n",
+                        expected: "     A    B\n0  1.0  0.0\n1  0.0  4.0",
+                        validation: `\ntry:\n  assert filled.isnull().sum().sum() == 0, "No NaN should remain"\n  assert filled['A'][1] == 0 and filled['B'][0] == 0, "NaNs must be 0"\n  print("---TEST_PASSED---")\nexcept Exception as e: print(f"TEST_ERROR: {e}")`
+                    },
+                    {
+                        id: 28, title: "Drop NaN Rows",
+                        instructions: "Drop rows containing any NaN from <code>df</code> using <code>.dropna()</code>. Assign to <code>clean</code>.",
+                        starter: "import pandas as pd\nimport numpy as np\ndf = pd.DataFrame({'A':[1,np.nan,3],'B':[4,5,np.nan]})\n\n",
+                        expected: "   A    B\n0  1.0  4.0",
+                        validation: `\ntry:\n  assert len(clean) == 1, "Only 1 complete row should remain"\n  assert clean.isnull().sum().sum() == 0, "No NaN should remain"\n  print("---TEST_PASSED---")\nexcept Exception as e: print(f"TEST_ERROR: {e}")`
+                    },
+                    {
+                        id: 29, title: "Merge DataFrames",
+                        instructions: "Merge <code>df1</code> and <code>df2</code> on column <code>'ID'</code> (inner join). Assign to <code>merged</code>.",
+                        starter: "import pandas as pd\ndf1 = pd.DataFrame({'ID':[1,2,3],'Name':['A','B','C']})\ndf2 = pd.DataFrame({'ID':[2,3,4],'Score':[90,85,70]})\n\n",
+                        expected: "   ID Name  Score\n0   2    B     90\n1   3    C     85",
+                        validation: `\ntry:\n  assert len(merged) == 2, "Inner join must produce 2 rows"\n  assert list(merged['ID']) == [2, 3], "IDs must be 2 and 3"\n  print("---TEST_PASSED---")\nexcept Exception as e: print(f"TEST_ERROR: {e}")`
+                    },
+                    {
+                        id: 30, title: "Concatenate DataFrames",
+                        instructions: "Concatenate <code>df1</code> and <code>df2</code> vertically with <code>pd.concat()</code> and <code>ignore_index=True</code>. Assign to <code>combined</code>.",
+                        starter: "import pandas as pd\ndf1 = pd.DataFrame({'X':[1,2]})\ndf2 = pd.DataFrame({'X':[3,4]})\n\n",
+                        expected: "   X\n0  1\n1  2\n2  3\n3  4",
+                        validation: `\ntry:\n  assert list(combined['X']) == [1, 2, 3, 4], "Must concatenate rows"\n  assert list(combined.index) == [0, 1, 2, 3], "Index must be reset"\n  print("---TEST_PASSED---")\nexcept Exception as e: print(f"TEST_ERROR: {e}")`
+                    }
+                ]
+            }
+        ];
+
+        // ==========================================
+        // 2. STATE & IndexedDB
+        // ==========================================
+        let currentExerciseIndex = 0;
+        const allTasks = curriculum.flatMap(c => c.tasks.map(t => ({ ...t, category: c.name })));
+        let completedSet = new Set();
+        let totalCoins = 0;
+        let editor, isEngineReady = false;
+
+        const DB_NAME = "PandasProDB";
+        const STORE_NAME = "pandas_mastery";
+        
+        async function initDB() {
+            return new Promise((resolve, reject) => {
+                const req = indexedDB.open(DB_NAME, 1);
+                req.onupgradeneeded = e => { 
+                    const db = e.target.result; 
+                    if (!db.objectStoreNames.contains(STORE_NAME)) db.createObjectStore(STORE_NAME); 
+                };
+                req.onsuccess = e => resolve(e.target.result);
+                req.onerror = e => reject(e.target.error);
+            });
+        }
+        
+        async function loadProgress() {
+            try {
+                const db = await initDB();
+                return new Promise(resolve => {
+                    const tx = db.transaction(STORE_NAME, "readonly");
+                    const req = tx.objectStore(STORE_NAME).get("progress_data");
+                    req.onsuccess = () => { 
+                        const d = req.result || { completed: [], coins: 0 }; 
+                        completedSet = new Set(d.completed); 
+                        totalCoins = d.coins; 
+                        resolve(); 
+                    };
+                });
+            } catch (e) { console.error(e); }
+        }
+        
+        async function saveProgress() {
+            try {
+                const db = await initDB();
+                const tx = db.transaction(STORE_NAME, "readwrite");
+                tx.objectStore(STORE_NAME).put({ completed: Array.from(completedSet), coins: totalCoins }, "progress_data");
+            } catch (e) { console.error(e); }
+        }
+
+        // ==========================================
+        // 3. DOM & UI Logic
+        // ==========================================
+        const sidebar = document.getElementById('sidebar');
+        const runBtn = document.getElementById('run-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const terminalOutput = document.getElementById('terminal-output');
+        const pyodideStatus = document.getElementById('pyodide-status');
+        const progressBar = document.getElementById('progress-bar');
+        const progressPercent = document.getElementById('progress-percent');
+        const progressFraction = document.getElementById('progress-fraction');
+        
+        function safeIcons() { if (typeof lucide !== 'undefined') lucide.createIcons(); }
+
+        function renderSidebar() {
+            sidebar.innerHTML = '';
+            const tot = allTasks.length, done = completedSet.size;
+            const pct = tot > 0 ? Math.round((done / tot) * 100) : 0;
+            
+            const sum = document.createElement('div'); 
+            sum.className = 'sidebar-summary';
+            sum.innerHTML = `
+                <span>${done}/${tot} done</span>
+                <div class="sidebar-summary-bar">
+                    <div class="sidebar-summary-bar-fill" style="width:${pct}%"></div>
+                </div>
+                <span>${pct}%</span>`;
+            sidebar.appendChild(sum);
+
+            curriculum.forEach(cat => {
+                const ct = cat.tasks;
+                const cd = ct.filter(t => completedSet.has(t.id)).length;
+                const cp = ct.length > 0 ? Math.round((cd / ct.length) * 100) : 0;
+                const allDone = cd === ct.length;
+                const hasActive = ct.some(t => allTasks.findIndex(a => a.id === t.id) === currentExerciseIndex);
+
+                const grp = document.createElement('div');
+                grp.className = 'category-group' + (hasActive ? ' open' : '');
+
+                const bc = allDone ? 'cat-badge complete' : cd > 0 ? 'cat-badge has-progress' : 'cat-badge';
+                const bt = allDone ? '✓ Done' : cd + '/' + ct.length;
+
+                const hdr = document.createElement('div'); hdr.className = 'category-header';
+                hdr.innerHTML = `
+                    <div class="category-header-left">
+                        <i data-lucide="folder" size="13" style="color:var(--accent-blue);flex-shrink:0"></i>
+                        <span>${cat.name}</span>
+                    </div>
+                    <div class="cat-meta">
+                        <span class="${bc}">${bt}</span>
+                        <i data-lucide="chevron-down" size="14" class="chevron"></i>
+                    </div>`;
+
+                const strip = document.createElement('div'); strip.className = 'cat-progress-strip';
+                strip.innerHTML = `<div class="cat-progress-strip-fill" style="width:${cp}%"></div>`;
+
+                const tl = document.createElement('div'); tl.className = 'task-list';
+                
+                ct.forEach(task => {
+                    const idx = allTasks.findIndex(t => t.id === task.id);
+                    const comp = completedSet.has(task.id);
+                    
+                    // NO LOCKING LOGIC - All exercises are available to click
+                    const item = document.createElement('div');
+                    item.className = 'exercise-item' + (idx === currentExerciseIndex ? ' active' : '') + (comp ? ' completed' : '');
+                    
+                    let icon = comp ? '<i data-lucide="check-circle" size="12"></i>' : '<div class="status-dot"></div>';
+                    
+                    item.innerHTML = `${icon} <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${task.title}</span>`;
+                    item.onclick = () => loadExercise(idx);
+                    tl.appendChild(item);
+                });
+                
+                hdr.addEventListener('click', () => grp.classList.toggle('open'));
+                grp.appendChild(hdr); grp.appendChild(strip); grp.appendChild(tl);
+                sidebar.appendChild(grp);
+            });
+            updateProgress(); safeIcons();
+        }
+
+        function loadExercise(index) {
+            currentExerciseIndex = index;
+            const task = allTasks[index];
+            document.getElementById('task-title').innerText = task.title;
+            document.getElementById('task-category').innerText = task.category;
+            document.getElementById('task-instructions').innerHTML = task.instructions;
+            document.getElementById('task-output').innerText = task.expected;
+            document.getElementById('success-message').style.display = 'none';
+            
+            if (isEngineReady) terminalOutput.innerHTML = '<span>Terminal ready...</span>';
+            if (editor) editor.setValue(task.starter);
+            
+            document.querySelectorAll('.exercise-item').forEach((el, i) => el.classList.toggle('active', i === index));
+        }
+
+        function markComplete(index) {
+            const task = allTasks[index];
+            if (!completedSet.has(task.id)) {
+                completedSet.add(task.id); totalCoins += 5;
+                saveProgress();
+                document.getElementById('reward-overlay').style.display = 'flex';
+                safeIcons();
+            }
+            renderSidebar();
+        }
+
+        function updateProgress() {
+            const total = allTasks.length, completed = completedSet.size;
+            const pct = Math.round((completed / total) * 100);
+            progressBar.style.width = pct + '%';
+            progressPercent.innerText = pct + '% Completed';
+            progressFraction.innerText = completed + '/' + total + ' Exercises';
+            document.getElementById('coin-balance').innerText = totalCoins;
+        }
+
+        // ==========================================
+        // 4. Pyodide Worker
+        // ==========================================
+        const workerSrc = [
+            'importScripts("https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js");',
+            'async function init() {',
+            '  try {',
+            '    self.postMessage({ type: "status", msg: "Downloading core runtime..." });',
+            '    const pyodide = await loadPyodide({ indexURL: "https://cdn.jsdelivr.net/pyodide/v0.25.0/full/" });',
+            '    self.postMessage({ type: "status", msg: "Installing pandas..." });',
+            '    await pyodide.loadPackage(["pandas","numpy"]);',
+            '    self.postMessage({ type: "ready" });',
+            '    return pyodide;',
+            '  } catch(e) { self.postMessage({ type: "error", message: e.message }); }',
+            '}',
+            'let ready = init();',
+            'self.onmessage = async event => {',
+            '  const pyodide = await ready; if (!pyodide) return;',
+            '  try {',
+            '    let out = "";',
+            '    pyodide.setStdout({ batched: s => { out += s + "\\n"; } });',
+            '    pyodide.setStderr({ batched: s => { out += s + "\\n"; } });',
+            '    await pyodide.runPythonAsync(event.data.code);',
+            '    self.postMessage({ type: "result", output: out, success: true });',
+            '  } catch(err) { self.postMessage({ type: "result", error: err.message, success: false }); }',
+            '};'
+        ].join('\n');
+
+        const worker = new Worker(URL.createObjectURL(new Blob([workerSrc], { type: "application/javascript" })));
+
+        worker.onmessage = e => {
+            const d = e.data;
+            if (d.type === 'status') {
+                pyodideStatus.innerHTML = `<i data-lucide="loader-2" class="spin" size="14"></i> ${d.msg}`;
+                terminalOutput.textContent = d.msg;
+                safeIcons(); return;
+            }
+            if (d.type === 'ready') {
+                isEngineReady = true;
+                pyodideStatus.innerHTML = '<i data-lucide="zap" size="16"></i> pandas Ready';
+                pyodideStatus.style.background = 'var(--accent-green)';
+                pyodideStatus.style.color = '#fff';
+                pyodideStatus.classList.remove('loading-pulse');
+                runBtn.disabled = false;
+                terminalOutput.textContent = "Python 3.11 + pandas initialized.\nSelect a task and start coding.";
+                safeIcons(); return;
+            }
+            if (d.type === 'result') {
+                runBtn.disabled = false;
+                runBtn.innerHTML = '<i data-lucide="play" size="14"></i> Run Code';
+                safeIcons();
+                if (d.success) {
+                    const clean = (d.output || "").replace("---TEST_PASSED---\n", "").trim();
+                    terminalOutput.textContent = clean || "(no output)";
+                    if (d.output && d.output.includes("---TEST_PASSED---")) {
+                        markComplete(currentExerciseIndex);
+                        successMsg.style.display = 'block';
+                        terminalOutput.textContent += '\n\n✅ Test Passed! Excellent work.';
+                    }
+                } else {
+                    terminalOutput.innerHTML = `<span class="text-error">ERROR:\n${d.error}</span>`;
+                }
+            }
+        };
+
+        // ==========================================
+        // 5. Monaco Editor & Exec
+        // ==========================================
+        require.config({ paths: { 'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs' } });
+        require(['vs/editor/editor.main'], function () {
+            editor = monaco.editor.create(document.getElementById('editor-container'), {
+                value: allTasks[0].starter, language: 'python', theme: 'vs-dark', automaticLayout: true,
+                minimap: { enabled: false }, fontSize: 14, fontFamily: "'Fira Code', monospace",
+                padding: { top: 20 }, roundedSelection: true, scrollBeyondLastLine: false
+            });
+            startApp();
+        });
+
+        runBtn.addEventListener('click', () => {
+            const userCode = editor.getValue();
+            const val = allTasks[currentExerciseIndex].validation;
+            terminalOutput.innerHTML = '<span class="text-system">Executing...</span>';
+            runBtn.disabled = true; runBtn.innerText = '⚙️ Working...';
+            successMsg.style.display = 'none';
+            
+            const fullCode = `${userCode}\n${val}`;
+            worker.postMessage({ code: fullCode });
+        });
+
+        nextBtn.addEventListener('click', () => {
+            document.getElementById('reward-overlay').style.display = 'none';
+            if (currentExerciseIndex < allTasks.length - 1) loadExercise(currentExerciseIndex + 1);
+            else alert('🎉 Congratulations! You completed all Pandas challenges!');
+        });
+
+        async function startApp() {
+            await loadProgress();
+            renderSidebar();
+            loadExercise(0);
+            safeIcons();
+        }
+    </script>
+</body>
+</html>
