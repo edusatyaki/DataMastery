@@ -193,10 +193,10 @@
         
         <div class="hero-tags">
             <span class="tag py">Python</span>
-            <span class="tag np">NumPy</span>
-            <span class="tag pd">Pandas</span>
             <span class="tag sql">SQL</span>
             <span class="tag xl">Excel</span>
+            <span class="tag np">NumPy</span>
+            <span class="tag pd">Pandas</span>
         </div>
 
         <div class="hero-buttons">
@@ -266,29 +266,13 @@
                     <div class="icon-box np">NP</div>
                     <div class="status-badge status-live">• LIVE</div>
                 </div>
-                <h3 style="color: var(--c-numpy);">NumPy</h3>
+                <h3 style="color: var(--c-numpy);">NumPy Reference</h3>
                 <p>Learn arrays, vectorized operations, and matrix manipulation. The backbone of scientific Python.</p>
                 <div class="keyword-list">
                     <span class="keyword">np.array()</span><span class="keyword">reshape()</span><span class="keyword">linalg</span>
                 </div>
                 <div class="card-bottom">
                     <span class="progress-text"><span id="txt-np">0</span>/100 methods</span>
-                    <div class="go-btn">&rarr;</div>
-                </div>
-            </a>
-
-            <a href="pandas.html" class="card">
-                <div class="card-top">
-                    <div class="icon-box pd">PD</div>
-                    <div class="status-badge status-live">• LIVE</div>
-                </div>
-                <h3 style="color: var(--c-pandas);">Pandas</h3>
-                <p>DataFrame manipulation, groupby, merge, pivot tables and data cleaning.</p>
-                <div class="keyword-list">
-                    <span class="keyword">read_csv</span><span class="keyword">groupby</span><span class="keyword">merge</span>
-                </div>
-                <div class="card-bottom">
-                    <span class="progress-text"><span id="txt-pd">0</span>/120 methods</span>
                     <div class="go-btn">&rarr;</div>
                 </div>
             </a>
@@ -307,16 +291,18 @@
                 </div>
             </a>
 
-            <a href="matplotliblab.html" class="card">
+            <a href="pandas.html" class="card">
                 <div class="card-top">
-                    <div class="icon-box plt">PLT</div>
+                    <div class="icon-box pd">PD</div>
                     <div class="status-badge status-live">• LIVE</div>
                 </div>
-                <h3 style="color: var(--c-plt);">Matplotlib Lab</h3>
-                <p>Data visualization techniques, charting, graphing, and styling configuration.</p>
-                <div class="keyword-list"><span class="keyword">plot()</span><span class="keyword">scatter()</span></div>
+                <h3 style="color: var(--c-pandas);">Pandas Reference</h3>
+                <p>DataFrame manipulation, groupby, merge, pivot tables and data cleaning.</p>
+                <div class="keyword-list">
+                    <span class="keyword">read_csv</span><span class="keyword">groupby</span><span class="keyword">merge</span>
+                </div>
                 <div class="card-bottom">
-                    <span class="progress-text"><span id="txt-pltlab">0</span>/30 exercises</span>
+                    <span class="progress-text"><span id="txt-pd">0</span>/120 methods</span>
                     <div class="go-btn">&rarr;</div>
                 </div>
             </a>
@@ -331,6 +317,20 @@
                 <div class="keyword-list"><span class="keyword">ETL</span><span class="keyword">Real Data</span></div>
                 <div class="card-bottom">
                     <span class="progress-text"><span id="txt-pdlab">0</span>/30 exercises</span>
+                    <div class="go-btn">&rarr;</div>
+                </div>
+            </a>
+
+            <a href="matplotliblab.html" class="card">
+                <div class="card-top">
+                    <div class="icon-box plt">PLT</div>
+                    <div class="status-badge status-live">• LIVE</div>
+                </div>
+                <h3 style="color: #f59e0b;">Matplotlib Lab</h3>
+                <p>Data visualization techniques, charting, graphing, and styling configuration.</p>
+                <div class="keyword-list"><span class="keyword">plot()</span><span class="keyword">scatter()</span></div>
+                <div class="card-bottom">
+                    <span class="progress-text"><span id="txt-pltlab">0</span>/30 exercises</span>
                     <div class="go-btn">&rarr;</div>
                 </div>
             </a>
@@ -353,23 +353,28 @@
             </div>
             <div class="step">
                 <div class="step-num">02</div>
-                <h4>Step 2 — NumPy for Numerical Computing</h4>
-                <p>Learn arrays and vectorized operations. NumPy is the backbone of scientific Python and powers Pandas under the hood.</p>
-            </div>
-            <div class="step">
-                <div class="step-num">03</div>
-                <h4>Step 3 — Pandas for Data Manipulation</h4>
-                <p>Apply your NumPy knowledge to real tabular data. Master DataFrames, cleaning techniques, and aggregation.</p>
-            </div>
-            <div class="step">
-                <div class="step-num">04</div>
-                <h4>Step 4 — SQL for Database Querying</h4>
+                <h4>Step 2 — SQL for Database Querying</h4>
                 <p>Learn to query and transform data directly from databases. Indispensable for data pipelines and BI.</p>
             </div>
             <div class="step">
-                <div class="step-num">05</div>
-                <h4>Step 5 — Excel for Business Analytics</h4>
+                <div class="step-num">03</div>
+                <h4>Step 3 — Excel for Business Analytics</h4>
                 <p>Bridge the gap between code and business users. Learn advanced functions to analyze data in spreadsheets.</p>
+            </div>
+            <div class="step">
+                <div class="step-num">04</div>
+                <h4>Step 4 — NumPy for Numerical Computing</h4>
+                <p>Learn arrays and vectorized operations. NumPy is the backbone of scientific Python and powers Pandas under the hood.</p>
+            </div>
+            <div class="step">
+                <div class="step-num">05</div>
+                <h4>Step 5 — Matplotlib for Data Visualization</h4>
+                <p>Master data visualization techniques, charting, graphing, and styling configuration to bring your data to life.</p>
+            </div>
+            <div class="step">
+                <div class="step-num">06</div>
+                <h4>Step 6 — Pandas for Data Manipulation</h4>
+                <p>Apply your NumPy knowledge to real tabular data. Master DataFrames, cleaning techniques, and aggregation.</p>
             </div>
         </div>
     </section>
