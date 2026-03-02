@@ -15,11 +15,12 @@
             --text-muted: #94a3b8;
             --border-color: #2a3143;
             
-            --c-python: #facc15; /* Yellow */
-            --c-sql: #38bdf8;    /* Blue */
-            --c-excel: #10b981;  /* Green */
-            --c-numpy: #4f46e5;  /* Indigo */
-            --c-pandas: #ec4899; /* Pink */
+            --c-python: #facc15; 
+            --c-sql: #38bdf8;    
+            --c-excel: #10b981;  
+            --c-numpy: #4f46e5;  
+            --c-pandas: #ec4899; 
+            --c-plt: #f59e0b;
             --c-live: #10b981;
             
             --font-main: 'Outfit', sans-serif;
@@ -32,7 +33,6 @@
             font-family: var(--font-main);
             background-color: var(--bg-base);
             color: var(--text-main);
-            /* Grid background effect */
             background-image: 
                 linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
@@ -111,7 +111,6 @@
             position: relative; overflow: hidden;
         }
         .card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.5); }
-        .card.disabled { opacity: 0.6; pointer-events: none; filter: grayscale(0.5); }
         
         .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; }
         .icon-box { 
@@ -123,10 +122,10 @@
         .icon-box.xl { color: var(--c-excel); }
         .icon-box.np { color: var(--c-numpy); }
         .icon-box.pd { color: var(--c-pandas); }
+        .icon-box.plt { color: var(--c-plt); }
         
         .status-badge { font-size: 0.7rem; font-weight: 700; padding: 4px 10px; border-radius: 12px; letter-spacing: 0.5px; }
         .status-live { color: var(--c-live); background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); }
-        .status-soon { color: var(--text-muted); background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); }
 
         .card h3 { font-size: 1.5rem; margin-bottom: 0.5rem; }
         .card p { color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; margin-bottom: 1.5rem; flex: 1; }
@@ -135,7 +134,7 @@
         .keyword { font-family: var(--font-code); font-size: 0.75rem; background: rgba(0,0,0,0.3); padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border-color); color: #cbd5e1; }
 
         .card-bottom { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 1rem; margin-top: auto; }
-        .progress-text { font-size: 0.85rem; font-weight: 600; }
+        .progress-text { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); }
         .go-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); color: #fff; width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; }
         .card:hover .go-btn { background: #fff; color: #000; }
 
@@ -143,10 +142,10 @@
         .dashboard-container { max-width: 800px; margin: 0 auto; background: var(--bg-surface); padding: 2rem; border-radius: 16px; border: 1px solid var(--border-color); }
         .dash-row { display: flex; align-items: center; margin-bottom: 1rem; }
         .dash-row:last-child { margin-bottom: 0; }
-        .dash-label { width: 120px; font-weight: 600; font-size: 0.9rem; }
+        .dash-label { width: 130px; font-weight: 600; font-size: 0.9rem; }
         .dash-bar-bg { flex: 1; height: 8px; background: rgba(0,0,0,0.5); border-radius: 4px; overflow: hidden; margin: 0 15px; }
         .dash-bar-fill { height: 100%; border-radius: 4px; transition: width 0.8s ease; width: 0%; }
-        .dash-pct { width: 40px; text-align: right; font-size: 0.85rem; color: var(--text-muted); font-family: var(--font-code); }
+        .dash-pct { width: 45px; text-align: right; font-size: 0.85rem; color: var(--text-muted); font-family: var(--font-code); }
 
         /* Specific bar colors */
         .bar-py { background: var(--c-python); }
@@ -154,6 +153,7 @@
         .bar-xl { background: var(--c-excel); }
         .bar-np { background: var(--c-numpy); }
         .bar-pd { background: var(--c-pandas); }
+        .bar-plt { background: var(--c-plt); }
 
         /* --- LEARNING PATH TIMELINE --- */
         .timeline { max-width: 600px; margin: 0 auto; padding-left: 20px; border-left: 2px solid var(--border-color); position: relative; }
@@ -189,7 +189,7 @@
     <section class="hero">
         <div class="hero-badge">• 8 MODULES • LIVE DEMOS • PROGRESS TRACKING</div>
         <h1>Master Data Analytics<br><span class="gradient-text">From Zero to Pro</span></h1>
-        <p>An interactive learning hub covering Python, NumPy, Pandas, SQL and Excel — each with verified code demos, category filters, and personal progress tracking.</p>
+        <p>An interactive learning hub covering Python, NumPy, Pandas, SQL and Excel — each with verified code demos, interactive Colab-style labs, and personal progress tracking.</p>
         
         <div class="hero-tags">
             <span class="tag py">Python</span>
@@ -209,7 +209,7 @@
         <div class="section-header">
             <span class="section-eyebrow">Curriculum</span>
             <h2>Choose Your Module</h2>
-            <p>Each module is a self-contained interactive reference. Click any card to dive in.</p>
+            <p>Each module is a self-contained interactive reference or lab. Click any card to dive in.</p>
         </div>
 
         <div class="grid-3">
@@ -224,7 +224,7 @@
                     <span class="keyword">input()</span><span class="keyword">Lists</span><span class="keyword">Dicts</span><span class="keyword">Strings</span>
                 </div>
                 <div class="card-bottom">
-                    <span class="progress-text" style="color: var(--text-muted);"><span id="txt-py">0</span>/74 topics</span>
+                    <span class="progress-text"><span id="txt-py">0</span>/74 topics</span>
                     <div class="go-btn">&rarr;</div>
                 </div>
             </a>
@@ -240,7 +240,7 @@
                     <span class="keyword">DQL</span><span class="keyword">DML</span><span class="keyword">JOINs</span><span class="keyword">WINDOW</span>
                 </div>
                 <div class="card-bottom">
-                    <span class="progress-text" style="color: var(--text-muted);"><span id="txt-sql">0</span>/48 keywords</span>
+                    <span class="progress-text"><span id="txt-sql">0</span>/48 keywords</span>
                     <div class="go-btn">&rarr;</div>
                 </div>
             </a>
@@ -256,7 +256,7 @@
                     <span class="keyword">VLOOKUP</span><span class="keyword">XLOOKUP</span><span class="keyword">IF</span><span class="keyword">INDEX</span>
                 </div>
                 <div class="card-bottom">
-                    <span class="progress-text" style="color: var(--text-muted);"><span id="txt-xl">0</span>/114 functions</span>
+                    <span class="progress-text"><span id="txt-xl">0</span>/114 functions</span>
                     <div class="go-btn">&rarr;</div>
                 </div>
             </a>
@@ -272,7 +272,7 @@
                     <span class="keyword">np.array()</span><span class="keyword">reshape()</span><span class="keyword">linalg</span>
                 </div>
                 <div class="card-bottom">
-                    <span class="progress-text" style="color: var(--text-muted);"><span id="txt-np">0</span>/100 methods</span>
+                    <span class="progress-text"><span id="txt-np">0</span>/100 methods</span>
                     <div class="go-btn">&rarr;</div>
                 </div>
             </a>
@@ -288,42 +288,51 @@
                     <span class="keyword">read_csv</span><span class="keyword">groupby</span><span class="keyword">merge</span>
                 </div>
                 <div class="card-bottom">
-                    <span class="progress-text" style="color: var(--text-muted);"><span id="txt-pd">0</span>/120 methods</span>
+                    <span class="progress-text"><span id="txt-pd">0</span>/120 methods</span>
                     <div class="go-btn">&rarr;</div>
                 </div>
             </a>
 
-            <a href="#" class="card disabled">
+            <a href="numpylab.html" class="card">
                 <div class="card-top">
                     <div class="icon-box np">NL</div>
-                    <div class="status-badge status-soon">COMING SOON</div>
+                    <div class="status-badge status-live">• LIVE</div>
                 </div>
-                <h3>NumPy Lab</h3>
-                <p>Hands-on exercises solving array challenges directly in the browser.</p>
+                <h3 style="color: var(--c-numpy);">NumPy Lab</h3>
+                <p>Hands-on interactive Pyodide editor. Solve array challenges directly in the browser.</p>
                 <div class="keyword-list"><span class="keyword">Exercises</span><span class="keyword">Broadcasting</span></div>
-                <div class="card-bottom"><span class="progress-text">In development</span><div class="go-btn">&rarr;</div></div>
+                <div class="card-bottom">
+                    <span class="progress-text"><span id="txt-nplab">0</span>/50 exercises</span>
+                    <div class="go-btn">&rarr;</div>
+                </div>
             </a>
 
-            <a href="#" class="card disabled">
+            <a href="matplotliblab.html" class="card">
                 <div class="card-top">
-                    <div class="icon-box" style="color: #f59e0b;">PLT</div>
-                    <div class="status-badge status-soon">COMING SOON</div>
+                    <div class="icon-box plt">PLT</div>
+                    <div class="status-badge status-live">• LIVE</div>
                 </div>
-                <h3 style="color: #f59e0b;">Matplotlib Lab</h3>
+                <h3 style="color: var(--c-plt);">Matplotlib Lab</h3>
                 <p>Data visualization techniques, charting, graphing, and styling configuration.</p>
                 <div class="keyword-list"><span class="keyword">plot()</span><span class="keyword">scatter()</span></div>
-                <div class="card-bottom"><span class="progress-text">In development</span><div class="go-btn">&rarr;</div></div>
+                <div class="card-bottom">
+                    <span class="progress-text"><span id="txt-pltlab">0</span>/30 exercises</span>
+                    <div class="go-btn">&rarr;</div>
+                </div>
             </a>
 
-            <a href="#" class="card disabled">
+            <a href="pandaslab.html" class="card">
                 <div class="card-top">
                     <div class="icon-box pd">PL</div>
-                    <div class="status-badge status-soon">COMING SOON</div>
+                    <div class="status-badge status-live">• LIVE</div>
                 </div>
-                <h3>Pandas Lab</h3>
+                <h3 style="color: var(--c-pandas);">Pandas Lab</h3>
                 <p>Real-world datasets. Clean, transform, and aggregate dirty data into insights.</p>
                 <div class="keyword-list"><span class="keyword">ETL</span><span class="keyword">Real Data</span></div>
-                <div class="card-bottom"><span class="progress-text">In development</span><div class="go-btn">&rarr;</div></div>
+                <div class="card-bottom">
+                    <span class="progress-text"><span id="txt-pdlab">0</span>/30 exercises</span>
+                    <div class="go-btn">&rarr;</div>
+                </div>
             </a>
 
         </div>
@@ -393,31 +402,33 @@
             </div>
 
             <div class="dash-row">
-                <div class="dash-label" style="color: var(--c-numpy)">NumPy</div>
+                <div class="dash-label" style="color: var(--c-numpy)">NumPy Ref</div>
                 <div class="dash-bar-bg"><div class="dash-bar-fill bar-np" id="bar-np"></div></div>
                 <div class="dash-pct" id="pct-np">0%</div>
             </div>
 
             <div class="dash-row">
-                <div class="dash-label" style="color: var(--c-pandas)">Pandas</div>
+                <div class="dash-label" style="color: var(--c-numpy)">NumPy Lab</div>
+                <div class="dash-bar-bg"><div class="dash-bar-fill bar-np" id="bar-nplab"></div></div>
+                <div class="dash-pct" id="pct-nplab">0%</div>
+            </div>
+
+            <div class="dash-row">
+                <div class="dash-label" style="color: var(--c-pandas)">Pandas Ref</div>
                 <div class="dash-bar-bg"><div class="dash-bar-fill bar-pd" id="bar-pd"></div></div>
                 <div class="dash-pct" id="pct-pd">0%</div>
             </div>
-
-            <div class="dash-row" style="margin-top: 2rem; opacity: 0.5;">
-                <div class="dash-label">NumPy Lab</div>
-                <div class="dash-bar-bg"><div class="dash-bar-fill"></div></div>
-                <div class="dash-pct">—</div>
+            
+            <div class="dash-row">
+                <div class="dash-label" style="color: var(--c-pandas)">Pandas Lab</div>
+                <div class="dash-bar-bg"><div class="dash-bar-fill bar-pd" id="bar-pdlab"></div></div>
+                <div class="dash-pct" id="pct-pdlab">0%</div>
             </div>
-            <div class="dash-row" style="opacity: 0.5;">
-                <div class="dash-label">Matplotlib Lab</div>
-                <div class="dash-bar-bg"><div class="dash-bar-fill"></div></div>
-                <div class="dash-pct">—</div>
-            </div>
-            <div class="dash-row" style="opacity: 0.5;">
-                <div class="dash-label">Pandas Lab</div>
-                <div class="dash-bar-bg"><div class="dash-bar-fill"></div></div>
-                <div class="dash-pct">—</div>
+            
+            <div class="dash-row">
+                <div class="dash-label" style="color: var(--c-plt)">Matplotlib Lab</div>
+                <div class="dash-bar-bg"><div class="dash-bar-fill bar-plt" id="bar-pltlab"></div></div>
+                <div class="dash-pct" id="pct-pltlab">0%</div>
             </div>
 
         </div>
@@ -428,16 +439,19 @@
     </footer>
 
     <script>
-        // Total counts based on the datasets provided in the individual files
+        // Total counts for calculations
         const TOTALS = {
             py: 74,
             sql: 48,
             xl: 114,
             np: 100,
-            pd: 120
+            pd: 120,
+            nplab: 50,
+            pltlab: 30,
+            pdlab: 30
         };
 
-        // Get count from standard localStorage keys
+        // Helper: Get count from standard localStorage keys
         function getLocalCount(prefix) {
             let count = 0;
             for (let i = 0; i < localStorage.length; i++) {
@@ -449,50 +463,66 @@
             return count;
         }
 
-        // Get count from Excel's IndexedDB
-        async function getExcelCount() {
+        // Helper: Generic IndexedDB array count reader
+        async function getIDBCount(dbName, storeName) {
             return new Promise((resolve) => {
-                const request = indexedDB.open('sheetmaster-db', 1);
-                
+                const request = indexedDB.open(dbName, 1);
                 request.onsuccess = function (event) {
                     const db = event.target.result;
-                    if (!db.objectStoreNames.contains('readFunctions')) {
+                    if (!db.objectStoreNames.contains(storeName)) {
                         resolve(0);
                         return;
                     }
-                    const tx = db.transaction('readFunctions', 'readonly');
-                    const store = tx.objectStore('readFunctions');
-                    const countReq = store.count();
+                    const tx = db.transaction(storeName, 'readonly');
+                    const store = tx.objectStore(storeName);
                     
-                    countReq.onsuccess = () => resolve(countReq.result);
-                    countReq.onerror = () => resolve(0);
+                    // For Excel, it counts total distinct records in store
+                    if(dbName === 'sheetmaster-db') {
+                        const countReq = store.count();
+                        countReq.onsuccess = () => resolve(countReq.result);
+                        countReq.onerror = () => resolve(0);
+                    } 
+                    // For Labs, it looks inside a specific "progress_data" object for an array of completed IDs
+                    else {
+                        const req = store.get("progress_data");
+                        req.onsuccess = () => {
+                            if (req.result && req.result.completed) {
+                                resolve(req.result.completed.length);
+                            } else {
+                                resolve(0);
+                            }
+                        };
+                        req.onerror = () => resolve(0);
+                    }
                 };
-                
                 request.onerror = () => resolve(0);
             });
         }
 
         // Update UI
         async function syncDashboard() {
-            // 1. Gather scores
+            // 1. Gather scores from localStorage and all IndexedDBs
             const counts = {
                 py: getLocalCount('py-v2-'),
                 sql: getLocalCount('sql-v1-'),
                 np: getLocalCount('np-master-v1-'),
                 pd: getLocalCount('pd-v5-'),
-                xl: await getExcelCount()
+                xl: await getIDBCount('sheetmaster-db', 'readFunctions'),
+                nplab: await getIDBCount('Application', 'numpy_mastery'),
+                pltlab: await getIDBCount('PlotNinjaDB', 'matplotlib_mastery'),
+                pdlab: await getIDBCount('PandasProDB', 'pandas_mastery')
             };
 
-            // 2. Update DOM
+            // 2. Update DOM globally
             for (const [key, total] of Object.entries(TOTALS)) {
-                const score = counts[key];
+                const score = counts[key] || 0;
                 const pct = total > 0 ? Math.round((score / total) * 100) : 0;
                 
-                // Update Card text
+                // Update text on specific module cards
                 const cardTxt = document.getElementById(`txt-${key}`);
                 if (cardTxt) cardTxt.textContent = score;
 
-                // Update Dashboard Bar & Text
+                // Update visual bars and percentages in Dashboard
                 const bar = document.getElementById(`bar-${key}`);
                 const pctTxt = document.getElementById(`pct-${key}`);
                 
@@ -501,7 +531,7 @@
             }
         }
 
-        // Run on load
+        // Initialize synchronization on load
         document.addEventListener('DOMContentLoaded', syncDashboard);
     </script>
 </body>
