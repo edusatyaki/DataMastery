@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataMastery | Excel Master</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Matched to DataMastery Hub */
+            --bg-color: #0b0f19; 
+            --card-bg: #131826; 
+            --text-primary: #f8fafc; 
+            --text-secondary: #94a3b8;
+            --border-color: #2a3143; 
+            
+            /* Excel Green Accent */
+            --accent-color: #10b981; 
+            --accent-glow: rgba(16, 185, 129, 0.5);
+            --code-font: 'Space Mono', monospace;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body { 
+            font-family: 'Outfit', sans-serif; 
+            background-color: var(--bg-color); 
+            color: var(--text-primary); 
+            padding-bottom: 100px; 
+            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            overflow-x: hidden;
+        }
+
+        /* --- GLOBAL NAVBAR --- */
+        .global-nav {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1rem 4rem; background: rgba(11, 15, 25, 0.95); backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 9999;
+        }
+        .global-nav .logo { font-size: 1.5rem; font-weight: 700; color: #818cf8; text-decoration: none; }
+        .global-nav .logo span { color: #f8fafc; }
+        .global-nav .nav-links { display: flex; gap: 2rem; font-weight: 500; }
+        .global-nav .nav-links a { color: var(--text-secondary); text-decoration: none; transition: 0.2s; }
+        .global-nav .nav-links a:hover { color: #fff; }
+        .btn-back { background: #2a3143; color: #fff; padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; font-size: 0.9rem; transition: 0.2s;}
+        .btn-back:hover { background: #3b445e; }
+
+        /* --- MODULE STYLES --- */
+        .ambient-light { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: -1; background: radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.08) 0%, transparent 50%); }
+        
+        .progress-container { 
+            position: sticky; top: 65px; width: 100%; z-index: 1000; 
+            background: rgba(19, 24, 38, 0.95); backdrop-filter: blur(10px); 
+            border-bottom: 1px solid var(--border-color); padding: 1rem 2rem; 
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; 
+        }
+        .progress-info { font-size: 0.9rem; color: var(--text-secondary); font-weight: 600; white-space: nowrap; }
+        .progress-bar-wrapper { flex: 1; min-width: 150px; margin: 0 10px; background: rgba(0,0,0,0.5); height: 6px; border-radius: 3px; overflow: hidden; }
+        .progress-bar-fill { height: 100%; background: var(--accent-color); width: 0%; transition: width 0.4s ease; border-radius: 2px; }
+
+        header { padding: 3rem 2rem; text-align: center; }
+        h1 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 700; color: #f0f6fc; margin-bottom: 0.5rem; }
+
+        .controls-wrapper { max-width: 1200px; margin: 1rem auto; display: flex; gap: 1rem; padding: 0 2rem; flex-wrap: wrap; }
+        .search-input, .filter-select { flex: 1; padding: 0.8rem 1rem; border-radius: 6px; border: 1px solid var(--border-color); background: var(--card-bg); color: #fff; font-family: var(--code-font); font-size: 0.9rem; min-width: 200px; }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+        .table-wrapper { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 800px; }
+        th { text-align: left; padding: 1.5rem; color: var(--text-secondary); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid var(--border-color); background: #0b0f19; }
+        td { padding: 1.5rem; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
+        tr:hover { background: rgba(255,255,255,0.02); }
+
+        .func_name { font-family: var(--code-font); font-weight: 700; font-size: 1.1rem; color: #fff; }
+        .syntax { font-family: var(--code-font); font-size: 0.9rem; color: var(--text-secondary); background: rgba(0, 0, 0, 0.3); padding: 0.5rem; border-radius: 6px; display: inline-block; }
+        .example { font-family: var(--code-font); color: var(--accent-color); }
+        .desc { color: #cbd5e1; line-height: 1.6; max-width: 300px; font-size: 0.9rem; }
+
+        /* Type Badges */
+        .type-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
+        .type-math { background: rgba(59, 130, 246, 0.1); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.2); }
+        .type-logical { background: rgba(234, 179, 8, 0.1); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.2); }
+        .type-text { background: rgba(236, 72, 153, 0.1); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.2); }
+        .type-date { background: rgba(16, 185, 129, 0.1); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.2); }
+        .type-lookup { background: rgba(139, 92, 246, 0.1); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.2); }
+        .type-array { background: rgba(219, 39, 119, 0.1); color: #db2777; border: 1px solid rgba(219, 39, 119, 0.2); }
+        .type-filter { background: rgba(124, 58, 237, 0.1); color: #c4b5fd; border: 1px solid rgba(124, 58, 237, 0.2); }
+        .type-google { background: rgba(37, 99, 235, 0.1); color: #93c5fd; border: 1px solid rgba(37, 99, 235, 0.2); }
+        .type-statistical { background: rgba(234, 88, 12, 0.1); color: #fdba74; border: 1px solid rgba(234, 88, 12, 0.2); }
+        .type-web { background: rgba(2, 132, 199, 0.1); color: #7dd3fc; border: 1px solid rgba(2, 132, 199, 0.2); }
+        .type-engineering { background: rgba(5, 150, 105, 0.1); color: #6ee7b7; border: 1px solid rgba(5, 150, 105, 0.2); }
+        .type-info { background: rgba(71, 85, 105, 0.1); color: #cbd5e1; border: 1px solid rgba(71, 85, 105, 0.2); }
+        .type-database { background: rgba(220, 38, 38, 0.1); color: #fca5a5; border: 1px solid rgba(220, 38, 38, 0.2); }
+        .type-parser { background: rgba(217, 119, 6, 0.1); color: #fcd34d; border: 1px solid rgba(217, 119, 6, 0.2); }
+        .type-operator { background: rgba(107, 114, 128, 0.1); color: #e2e8f0; border: 1px solid rgba(107, 114, 128, 0.2); }
+
+        /* Custom Checkbox */
+        .read-checkbox { appearance: none; width: 20px; height: 20px; border: 2px solid rgba(16, 185, 129, 0.3); border-radius: 4px; background: rgba(15, 23, 42, 0.5); cursor: pointer; position: relative; transition: all 0.3s ease; }
+        .read-checkbox:checked { background: rgba(16, 185, 129, 0.2); border-color: var(--accent-color); box-shadow: 0 0 12px rgba(16, 185, 129, 0.5); }
+        .read-checkbox:checked::after { content: '✓'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: var(--accent-color); font-size: 14px; font-weight: bold; text-shadow: 0 0 8px rgba(16, 185, 129, 0.8); }
+
+        /* Play Button */
+        .play-btn { background: transparent; border: 1px solid var(--accent-color); color: var(--accent-color); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s; }
+        .play-btn:hover { background: var(--accent-color); color: #0b0f19; box-shadow: 0 0 15px var(--accent-glow); transform: scale(1.05); }
+
+        /* Modal / Animation Stage */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px); z-index: 2000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.4s ease; }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .animation-stage { width: 800px; max-width: 90vw; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.5); transform: translateY(20px); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .modal-overlay.active .animation-stage { transform: translateY(0); }
+
+        /* Mock Sheet UI */
+        .sheet-header { background: #f8f9fa; border-bottom: 1px solid #e0e0e0; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; }
+        .sheet-title { color: #202124; font-weight: 500; font-size: 1.1rem; display: flex; align-items: center; gap: 10px; }
+        .sheet-icon { color: var(--accent-color); font-size: 1.5rem; }
+        .close-btn { background: none; border: none; font-size: 1.5rem; color: #5f6368; cursor: pointer; padding: 0.5rem; border-radius: 50%; transition: background 0.2s; }
+        .close-btn:hover { background: #eeeeee; }
+        .formula-bar { background: #fff; border-bottom: 1px solid #e0e0e0; padding: 0.5rem; display: flex; align-items: center; gap: 10px; }
+        .fx-symbol { color: #5f6368; font-weight: bold; font-family: 'Times', serif; font-style: italic; padding-left: 1rem; }
+        .formula-input { background: #f1f3f4; border-radius: 4px; height: 28px; flex: 1; display: flex; align-items: center; padding: 0 10px; font-family: var(--code-font); font-size: 0.9rem; color: #000; }
+        .cursor { display: none; width: 2px; height: 1.2em; background-color: black; animation: blink 1s step-end infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        .sheet-grid { display: grid; grid-template-columns: 50px repeat(4, 1fr); grid-auto-rows: 40px; background: #e0e0e0; gap: 1px; border-bottom: 1px solid #e0e0e0; }
+        .cell { background: #fff; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; color: #202124; position: relative; }
+        .cell-header { background: #f8f9fa; font-weight: bold; color: #5f6368; }
+        .cell.active { border: 2px solid var(--accent-color); z-index: 10; }
+        .cell.highlight { background: rgba(16, 185, 129, 0.1); border: 1px dashed var(--accent-color); }
+        .animation-controls { padding: 1.5rem; text-align: center; background: #f8f9fa; border-top: 1px solid #e0e0e0; }
+        .status-text { color: #5f6368; font-size: 0.9rem; min-height: 1.5em; font-weight: 500;}
+
+        /* --- GLOBAL FOOTER --- */
+        .global-footer { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(11, 15, 25, 0.95); backdrop-filter: blur(5px); border-top: 1px solid var(--border-color); padding: 1rem; text-align: center; font-size: 0.9rem; z-index: 1000; color: var(--text-secondary); }
+
+        @media (max-width: 768px) {
+            .global-nav { padding: 1rem; flex-direction: column; gap: 10px; }
+            .controls-wrapper { flex-direction: column; }
+            .search-input, .filter-select { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="global-nav">
+        <a href="index.html" class="logo">Data<span>Mastery</span></a>
+        <div class="nav-links">
+            <a href="index.html#modules">Modules</a>
+            <a href="index.html#progress">Dashboard</a>
+        </div>
+        <a href="index.html" class="btn-back">&larr; Back to Hub</a>
+    </nav>
+
+    <div class="ambient-light"></div>
+
+    <div class="progress-container">
+        <span class="progress-info">Excel Mastery</span>
+        <div class="progress-bar-wrapper">
+            <div id="progress-bar-fill" class="progress-bar-fill"></div>
+        </div>
+        <span id="progress-text" class="progress-info">0/114</span>
+    </div>
+
+    <header>
+        <h1>Sheets Master</h1>
+        <p style="color: var(--text-secondary)">Interactive visual guide to the most powerful Google Sheets & Excel functions.</p>
+    </header>
+
+    <div class="controls-wrapper">
+        <input type="text" id="searchInput" class="search-input" placeholder="Search functions...">
+        <select id="typeFilter" class="filter-select">
+            <option value="all">All Types</option>
+            <option value="math">Math</option>
+            <option value="text">Text</option>
+            <option value="date">Date</option>
+            <option value="filter">Filter / Array</option>
+            <option value="engineering">Engineering</option>
+            <option value="statistical">Statistical</option>
+            <option value="lookup">Lookup</option>
+        </select>
+    </div>
+
+    <div class="container">
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 50px;">✓</th>
+                        <th>Type</th>
+                        <th>Name</th>
+                        <th>Syntax</th>
+                        <th>Example</th>
+                        <th>Description</th>
+                        <th>Demo</th>
+                    </tr>
+                </thead>
+                <tbody id="functions-body">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modal">
+        <div class="animation-stage">
+            <div class="sheet-header">
+                <div class="sheet-title">
+                    <span class="sheet-icon">田</span>
+                    <span id="demo-title">Function Demo</span>
+                </div>
+                <button class="close-btn" onclick="closeModal()">×</button>
+            </div>
+
+            <div class="formula-bar">
+                <span class="fx-symbol">fx</span>
+                <div class="formula-input" id="formula-display">
+                    <span id="formula-text"></span><span class="cursor" id="cursor"></span>
+                </div>
+            </div>
+
+            <div class="sheet-grid" id="grid-container">
+                </div>
+
+            <div class="animation-controls">
+                <p class="status-text" id="status-text">Initializing...</p>
+            </div>
+        </div>
+    </div>
+
+    <footer class="global-footer">
+        DataMastery Hub | Ideation & Development by Satyaki Das
+    </footer>
+
+    <script>
+        // Massive Function Data Array
+        const functions = [
+            { type: 'Math', name: 'SUM', syntax: 'SUM(val1, [val2])', example: '=SUM(A1:A3)', desc: 'Calculates the sum of a range of cells.', data: { A1: 10, A2: 20, A3: 30, target: 'A4', formula: '=SUM(A1:A3)', result: 60, highlight: ['A1', 'A2', 'A3'], steps: ["Select cell A4.", "Type sum formula.", "Reference range A1 to A3.", "Total is calculated."] } },
+            { type: 'Math', name: 'AVERAGE', syntax: 'AVERAGE(val1, [val2])', example: '=AVERAGE(B1:B3)', desc: 'Returns the numerical average value in a dataset.', data: { B1: 100, B2: 200, B3: 600, target: 'B4', formula: '=AVERAGE(B1:B3)', result: 300, highlight: ['B1', 'B2', 'B3'], steps: ["Select target cell B4.", "Input AVERAGE function.", "Select data range.", "Mean is computed."] } },
+            { type: 'Math', name: 'MAX', syntax: 'MAX(val1, [val2])', example: '=MAX(A1:A5)', desc: 'Returns the maximum value in a numeric dataset.', data: { A1: 12, A2: 45, A3: 7, A4: 98, A5: 23, target: 'A6', formula: '=MAX(A1:A5)', result: 98, highlight: ['A1', 'A2', 'A3', 'A4', 'A5'], steps: ["Identify range.", "Use MAX function.", "Scan for highest value.", "98 is maximum."] } },
+            { type: 'Math', name: 'MIN', syntax: 'MIN(val1, [val2])', example: '=MIN(A1:A5)', desc: 'Returns the minimum value in a numeric dataset.', data: { A1: 12, A2: 45, A3: 7, A4: 98, A5: 23, target: 'A6', formula: '=MIN(A1:A5)', result: 7, highlight: ['A1', 'A2', 'A3', 'A4', 'A5'], steps: ["Identify range.", "Use MIN function.", "Scan for lowest value.", "7 is minimum."] } },
+            { type: 'Logical', name: 'IF', syntax: 'IF(expr, true_val, false_val)', example: '=IF(A1>10, "Pass", "Fail")', desc: 'Returns one value if TRUE and another if FALSE.', data: { A1: 5, target: 'B1', formula: '=IF(A1>10, "Pass", "Fail")', result: "Fail", highlight: ['A1'], steps: ["Check if A1 (5) > 10.", "Condition is False.", "Return second argument.", "Result is 'Fail'."] } },
+            { type: 'Text', name: 'CONCATENATE', syntax: 'CONCATENATE(str1, [str2])', example: '=CONCATENATE("Hi ", A1)', desc: 'Appends strings to one another.', data: { A1: "John", A2: "Doe", target: 'C1', formula: '=CONCATENATE(A1, " ", A2)', result: "John Doe", highlight: ['A1', 'A2'], steps: ["Take value A1.", "Add a space.", "Add value A2.", "Combine string."] } },
+            { type: 'Text', name: 'EXACT', syntax: 'EXACT(str1, str2)', example: '=EXACT("abc", "ABC")', desc: 'Tests whether two strings are identical.', data: { A1: "abc", B1: "ABC", target: 'C1', formula: '=EXACT(A1, B1)', result: "FALSE", highlight: ['A1', 'B1'], steps: ["Compare 'abc' and 'ABC'.", "Case-sensitive check.", "Strings match? No.", "Result is FALSE."] } },
+            { type: 'Text', name: 'FIND', syntax: 'FIND(search, text)', example: '=FIND("M", "Miriam")', desc: 'Returns the position at which a string is first found (Case-sensitive).', data: { A1: "Miriam", target: 'B1', formula: '=FIND("m", A1)', result: 6, highlight: ['A1'], steps: ["Search 'Miriam' for 'm'.", "Case sensitive.", "Found at index 6.", "Result is 6."] } },
+            { type: 'Text', name: 'LEFT', syntax: 'LEFT(string, [chars])', example: '=LEFT("Sales", 2)', desc: 'Returns a substring from the beginning of a specified string.', data: { A1: "Google", target: 'B1', formula: '=LEFT(A1, 1)', result: "G", highlight: ['A1'], steps: ["Take string 'Google'.", "Extract first 1 char.", "Result 'G'."] } },
+            { type: 'Text', name: 'LEN', syntax: 'LEN(text)', example: '=LEN("Hello")', desc: 'Returns the length of a string.', data: { A1: "Hello", target: 'B1', formula: '=LEN(A1)', result: 5, highlight: ['A1'], steps: ["Count characters.", "H-e-l-l-o", "Total 5 chars.", "Result is 5."] } },
+            { type: 'Text', name: 'LOWER', syntax: 'LOWER(text)', example: '=LOWER("HELLO")', desc: 'Converts a specified string to lowercase.', data: { A1: "HELLO", target: 'B1', formula: '=LOWER(A1)', result: "hello", highlight: ['A1'], steps: ["Read 'HELLO'.", "Convert char codes.", "Result 'hello'."] } },
+            { type: 'Text', name: 'MID', syntax: 'MID(str, start, len)', example: '=MID("Fluid", 2, 3)', desc: 'Returns a segment of a string.', data: { A1: "Fluid", target: 'B1', formula: '=MID(A1, 2, 3)', result: "lui", highlight: ['A1'], steps: ["Start at pos 2 (l).", "Take 3 chars (l,u,i).", "Result 'lui'."] } },
+            { type: 'Text', name: 'PROPER', syntax: 'PROPER(text)', example: '=PROPER("this is title")', desc: 'Capitalizes each word in a specified string.', data: { A1: "john doe", target: 'B1', formula: '=PROPER(A1)', result: "John Doe", highlight: ['A1'], steps: ["Find word boundaries.", "Capitalize first letters.", "Result 'John Doe'."] } },
+            { type: 'Text', name: 'REGEXEXTRACT', syntax: 'REGEXEXTRACT(text, regex)', example: '=REGEXEXTRACT("SKU-123", "\\d+")', desc: 'Extracts matching substrings according to a regular expression.', data: { A1: "SKU-123", target: 'B1', formula: '=REGEXEXTRACT(A1, "\\d+")', result: "123", highlight: ['A1'], steps: ["Apply regex \\d+.", "Find digits.", "Extract '123'."] } },
+            { type: 'Text', name: 'REPLACE', syntax: 'REPLACE(text, pos, len, new)', example: '=REPLACE("Google Sheets", 8, 6, "Docs")', desc: 'Replaces part of a text string with a different text string.', data: { A1: "Google Sheets", target: 'B1', formula: '=REPLACE(A1, 8, 6, "Docs")', result: "Google Docs", highlight: ['A1'], steps: ["Go to pos 8 (S).", "Remove 6 chars (Sheets).", "Insert 'Docs'.", "Result 'Google Docs'."] } },
+            { type: 'Text', name: 'RIGHT', syntax: 'RIGHT(string, [chars])', example: '=RIGHT("Order 500", 3)', desc: 'Returns a substring from the end of a specified string.', data: { A1: "Order-99", target: 'B1', formula: '=RIGHT(A1, 2)', result: "99", highlight: ['A1'], steps: ["Start from end.", "Take 2 characters.", "Result '99'."] } },
+            { type: 'Text', name: 'SEARCH', syntax: 'SEARCH(search, text)', example: '=SEARCH("Market", "Stock market")', desc: 'Returns position at which string is found (case-insensitive).', data: { A1: "Stock market", target: 'B1', formula: '=SEARCH("Market", A1)', result: 7, highlight: ['A1'], steps: ["Find 'Market'.", "Ignore case.", "Found at pos 7.", "Result 7."] } },
+            { type: 'Text', name: 'SPLIT', syntax: 'SPLIT(text, delimiter)', example: '=SPLIT("John,Doe", ",")', desc: 'Divides text around a specified character or string.', data: { A1: "John,Doe", target: 'B1', formula: '=SPLIT(A1, ",")', result: "John", highlight: ['A1'], steps: ["Read 'John,Doe'.", "Found ',' separator.", "Split into B1, C1.", "Result spills."] } },
+            { type: 'Text', name: 'SUBSTITUTE', syntax: 'SUBSTITUTE(text, old, new)', example: '=SUBSTITUTE("1-800", "-", " ")', desc: 'Replaces existing text with new text in a string.', data: { A1: "1-800", target: 'B1', formula: '=SUBSTITUTE(A1, "-", " ")', result: "1 800", highlight: ['A1'], steps: ["Find all '-'.", "Replace with space.", "Result updated string."] } },
+            { type: 'Text', name: 'TRIM', syntax: 'TRIM(text)', example: '=TRIM("  Hello  ")', desc: 'Removes leading and trailing spaces in a specified string.', data: { A1: "  Hello  ", target: 'B1', formula: '=TRIM(A1)', result: "Hello", highlight: ['A1'], steps: ["Read string.", "Strip start spaces.", "Strip end spaces.", "Result 'Hello'."] } },
+            { type: 'Date', name: 'DATE', syntax: 'DATE(year, month, day)', example: '=DATE(2023, 12, 25)', desc: 'Converts a provided year, month, and day into a date.', data: { A1: 2023, A2: 12, A3: 25, target: 'B1', formula: '=DATE(A1, A2, A3)', result: "12/25/2023", highlight: ['A1', 'A2', 'A3'], steps: ["Take Year 2023.", "Take Month 12.", "Take Day 25.", "Result '12/25/2023'."] } },
+            { type: 'Date', name: 'DATEDIF', syntax: 'DATEDIF(start, end, unit)', example: '=DATEDIF("2023-01-01", "2024-01-01", "Y")', desc: 'Calculates the number of days, months, or years between two dates.', data: { A1: "1/1/2023", B1: "1/1/2024", target: 'C1', formula: '=DATEDIF(A1, B1, "Y")', result: 1, highlight: ['A1', 'B1'], steps: ["Start: 1/1/2023.", "End: 1/1/2024.", "Diff in Years.", "Result 1."] } },
+            { type: 'Date', name: 'DAY', syntax: 'DAY(date)', example: '=DAY("2023-10-15")', desc: 'Returns the day of the month that a specific date falls on.', data: { A1: "10/15/2023", target: 'B1', formula: '=DAY(A1)', result: 15, highlight: ['A1'], steps: ["Read date.", "Extract day part.", "Result 15."] } },
+            { type: 'Date', name: 'MONTH', syntax: 'MONTH(date)', example: '=MONTH("2023-03-15")', desc: 'Returns the month of the year a specific date falls in.', data: { A1: "3/15/2023", target: 'B1', formula: '=MONTH(A1)', result: 3, highlight: ['A1'], steps: ["Read date.", "Extract month.", "Result 3."] } },
+            { type: 'Date', name: 'NETWORKDAYS', syntax: 'NETWORKDAYS(start, end)', example: '=NETWORKDAYS("2024-01-01", "2024-01-10")', desc: 'Returns the number of net working days between two provided days.', data: { A1: "1/1/24 (Mon)", B1: "1/8/24 (Mon)", target: 'C1', formula: '=NETWORKDAYS(A1, B1)', result: 6, highlight: ['A1', 'B1'], steps: ["Count Mon-Fri.", "Excl weekends.", "Days: 1,2,3,4,5,8.", "Result 6."] } },
+            { type: 'Date', name: 'NOW', syntax: 'NOW()', example: '=NOW()', desc: 'Returns the current date and time as a date value.', data: { target: 'A1', formula: '=NOW()', result: new Date().toLocaleString(), steps: ["Get system time.", "Format date+time.", "Display result."] } },
+            { type: 'Lookup', name: 'VLOOKUP', syntax: 'VLOOKUP(key, range, index, [sort])', example: '=VLOOKUP(102, A2:B4, 2, FALSE)', desc: 'Searches down the first column of a range for a key and returns the value of a specified cell.', data: { A1: "ID", B1: "Name", A2: "101", B2: "Alice", A3: "102", B3: "Bob", C1: "Search:", C2: "102", target: 'D2', formula: '=VLOOKUP(C2, A2:B4, 2, 0)', result: "Bob", highlight: ['C2', 'A2', 'A3', 'B2', 'B3'], steps: ["Look for value in C2.", "Search in column A.", "Match found at row 3.", "Return value from col 2."] } },
+            { type: 'Lookup', name: 'XLOOKUP', syntax: 'XLOOKUP(key, lookup_rg, result_rg)', example: '=XLOOKUP(103, A:A, B:B)', desc: 'Modern replacement for VLOOKUP. Returns values based on position match.', data: { A1: "ID", B1: "Dept", A2: "101", B2: "HR", A3: "103", B3: "IT", C1: "ID:", C2: "103", target: 'D2', formula: '=XLOOKUP(C2, A2:A3, B2:B3)', result: "IT", highlight: ['C2', 'A2', 'A3', 'B2', 'B3'], steps: ["Find 103 in A2:A3.", "Locate position (2nd).", "Get 2nd item from B2:B3.", "Result is 'IT'."] } },
+            { type: 'Statistical', name: 'COUNTIF', syntax: 'COUNTIF(range, criterion)', example: '=COUNTIF(A1:A5, "Apple")', desc: 'Returns a conditional count across a range.', data: { A1: "Apple", A2: "Banana", A3: "Apple", A4: "Orange", target: 'B1', formula: '=COUNTIF(A1:A4, "Apple")', result: 2, highlight: ['A1', 'A3'], steps: ["Scan range A1:A4.", "Check for 'Apple'.", "Count matches.", "Found 2 instances."] } },
+            { type: 'Filter', name: 'UNIQUE', syntax: 'UNIQUE(range)', example: '=UNIQUE(A1:A10)', desc: 'Returns unique rows in the provided source range.', data: { A1: "Red", A2: "Blue", A3: "Red", A4: "Green", target: 'B1', formula: '=UNIQUE(A1:A4)', result: "Red", highlight: ['A1', 'A2', 'A3', 'A4'], steps: ["Analyze range.", "Identify duplicates.", "Filter list.", "Returns clean list (spills)."] } },
+            { type: 'Filter', name: 'FILTER', syntax: 'FILTER(range, cond1)', example: '=FILTER(A1:A5, B1:B5>100)', desc: 'Returns a filtered version of the source range.', data: { A1: "A", B1: 50, A2: "B", B2: 150, A3: "C", B3: 200, target: 'C1', formula: '=FILTER(A1:A3, B1:B3>100)', result: "{B; C}", highlight: ['A1', 'A2', 'A3', 'B1', 'B2', 'B3'], steps: ["Check B1 > 100? No.", "Check B2 > 100? Yes.", "Check B3 > 100? Yes.", "Returns {B; C}."] } },
+            { type: 'Filter', name: 'SORT', syntax: 'SORT(range, col, asc)', example: '=SORT(A1:B5, 1, TRUE)', desc: 'Sorts the rows of a given array or range.', data: { A1: 3, B1: "C", A2: 1, B2: "A", A3: 2, B3: "B", target: 'C1', formula: '=SORT(A1:B3, 1, TRUE)', result: "{1; 2; 3}", highlight: ['A1', 'A2', 'A3', 'B1', 'B2', 'B3'], steps: ["Select range.", "Sort by Col 1 (Asc).", "Reorder rows: 1, 2, 3.", "Spills result."] } },
+            { type: 'Google', name: 'SPARKLINE', syntax: 'SPARKLINE(data)', example: '=SPARKLINE(A1:E1)', desc: 'Creates a miniature chart contained within a single cell.', data: { A1: 10, B1: 30, C1: 15, D1: 50, target: 'E1', formula: '=SPARKLINE(A1:D1)', result: "📈", highlight: ['A1', 'B1', 'C1', 'D1'], steps: ["Select data range.", "Generate SVG chart.", "Embed in cell E1.", "Visual trend created."] } },
+            { type: 'Array', name: 'TRANSPOSE', syntax: 'TRANSPOSE(range)', example: '=TRANSPOSE(A1:B2)', desc: 'Transposes the rows and columns of an array.', data: { A1: "A", B1: "B", A2: "C", B2: "D", target: 'D1', formula: '=TRANSPOSE(A1:B2)', result: "A C...", highlight: ['A1', 'B1', 'A2', 'B2'], steps: ["Swap rows/cols.", "Row 1 becomes Col 1.", "A, B -> A; B.", "Spills result."] } }
+        ];
+
+        // IndexedDB Configuration
+        const dbName = 'sheetmaster-db';
+        const storeName = 'readFunctions';
+        let db;
+
+        function openDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(dbName, 1);
+                request.onupgradeneeded = function (event) {
+                    const db = event.target.result;
+                    if (!db.objectStoreNames.contains(storeName)) {
+                        db.createObjectStore(storeName, { keyPath: 'name' });
+                    }
+                };
+                request.onsuccess = function (event) {
+                    db = event.target.result;
+                    resolve();
+                };
+                request.onerror = function (event) { reject(event); };
+            });
+        }
+
+        async function getReadFunctions() {
+            await openDB();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(storeName, 'readonly');
+                const store = tx.objectStore(storeName);
+                const request = store.getAll();
+                request.onsuccess = function () {
+                    resolve(request.result.map(item => item.name));
+                };
+                request.onerror = function (e) { reject(e); };
+            });
+        }
+
+        async function saveReadFunction(functionName) {
+            await openDB();
+            const tx = db.transaction(storeName, 'readwrite');
+            const store = tx.objectStore(storeName);
+            store.put({ name: functionName });
+        }
+
+        async function removeReadFunction(functionName) {
+            await openDB();
+            const tx = db.transaction(storeName, 'readwrite');
+            const store = tx.objectStore(storeName);
+            store.delete(functionName);
+        }
+
+        async function updateProgress() {
+            const total = functions.length;
+            const reads = await getReadFunctions();
+            const percentage = total === 0 ? 0 : Math.round((reads.length / total) * 100);
+            document.getElementById('progress-bar-fill').style.width = `${percentage}%`;
+            document.getElementById('progress-text').textContent = `${reads.length}/${total}`;
+        }
+
+        // Initialize Table
+        async function init() {
+            const tbody = document.getElementById('functions-body');
+            const readFuncs = await getReadFunctions();
+
+            functions.forEach((f, index) => {
+                const tr = document.createElement('tr');
+                tr.className = 'func-row';
+                tr.dataset.type = f.type.toLowerCase();
+                tr.dataset.name = f.name.toLowerCase();
+
+                const isChecked = readFuncs.includes(f.name);
+
+                tr.innerHTML = `
+                    <td style="text-align: center;">
+                        <input type="checkbox" class="read-checkbox" data-function="${f.name}" ${isChecked ? 'checked' : ''} />
+                    </td>
+                    <td><span class="type-badge type-${f.type.toLowerCase()}">${f.type}</span></td>
+                    <td><div class="func_name">${f.name}</div></td>
+                    <td><div class="syntax">${f.syntax}</div></td>
+                    <td><div class="example">${f.example}</div></td>
+                    <td><div class="desc">${f.desc}</div></td>
+                    <td>
+                        <button class="play-btn" onclick="startDemo(${index})">▶</button>
+                    </td>`;
+                tbody.appendChild(tr);
+            });
+            updateProgress();
+        }
+
+        // Checkbox event listener
+        document.addEventListener('change', async (e) => {
+            if (e.target.classList.contains('read-checkbox')) {
+                const functionName = e.target.dataset.function;
+                if (e.target.checked) {
+                    await saveReadFunction(functionName);
+                } else {
+                    await removeReadFunction(functionName);
+                }
+                updateProgress();
+            }
+        });
+
+        // Search and Filter
+        function filterFunctions() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const selectedType = document.getElementById('typeFilter').value.toLowerCase();
+            const rows = document.querySelectorAll('.func-row');
+
+            rows.forEach(row => {
+                const name = row.dataset.name;
+                const type = row.dataset.type;
+                const matchesSearch = name.includes(searchTerm);
+                const matchesType = selectedType === 'all' || type === selectedType;
+
+                if (matchesSearch && matchesType) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+        document.getElementById('searchInput').addEventListener('input', filterFunctions);
+        document.getElementById('typeFilter').addEventListener('change', filterFunctions);
+
+        // Animation Logic
+        let currentAnimationTimeout;
+        const modal = document.getElementById('modal');
+        const demoTitle = document.getElementById('demo-title');
+        const gridContainer = document.getElementById('grid-container');
+        const formulaText = document.getElementById('formula-text');
+        const cursor = document.getElementById('cursor');
+        const statusText = document.getElementById('status-text');
+
+        function closeModal() {
+            modal.classList.remove('active');
+            clearTimeout(currentAnimationTimeout);
+            formulaText.textContent = '';
+            cursor.style.display = 'none';
+        }
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+
+        async function wait(ms) {
+            return new Promise(resolve => {
+                currentAnimationTimeout = setTimeout(resolve, ms);
+            });
+        }
+
+        async function typeText(text) {
+            cursor.style.display = 'inline-block';
+            formulaText.textContent = '';
+            for (let char of text) {
+                await wait(50);
+                formulaText.textContent += char;
+            }
+            await wait(300);
+            cursor.style.display = 'none';
+        }
+
+        function createGrid(dataObj) {
+            gridContainer.innerHTML = '';
+            const colsSet = new Set();
+            const ignoreKeys = ['target', 'formula', 'result', 'highlight', 'steps'];
+
+            Object.keys(dataObj).forEach(key => {
+                if (!ignoreKeys.includes(key)) {
+                    const colMatch = key.match(/^[A-Z]+/);
+                    if (colMatch) colsSet.add(colMatch[0]);
+                }
+            });
+            ['A', 'B', 'C', 'D'].forEach(c => colsSet.add(c));
+            const cols = Array.from(colsSet).sort();
+
+            const headers = [' ', ...cols];
+            headers.forEach(h => {
+                const div = document.createElement('div');
+                div.className = 'cell cell-header';
+                div.textContent = h;
+                gridContainer.appendChild(div);
+            });
+
+            const placeValue = (col, row, value) => {
+                const cellId = `${col}${row}`;
+                const cellDiv = document.getElementById(`cell-${cellId}`);
+                if (cellDiv) cellDiv.textContent = value;
+            };
+
+            for (let r = 1; r <= 6; r++) {
+                const rowHead = document.createElement('div');
+                rowHead.className = 'cell cell-header';
+                rowHead.textContent = r;
+                gridContainer.appendChild(rowHead);
+
+                cols.forEach(c => {
+                    const cellId = `${c}${r}`;
+                    const div = document.createElement('div');
+                    div.className = 'cell';
+                    div.id = `cell-${cellId}`;
+                    if (dataObj[cellId] !== undefined) {
+                        div.textContent = dataObj[cellId];
+                    }
+                    gridContainer.appendChild(div);
+                });
+            }
+
+            if (Array.isArray(dataObj.result) && dataObj.target) {
+                const startCol = dataObj.target[0];
+                const startRow = parseInt(dataObj.target.slice(1), 10);
+                const matrix = Array.isArray(dataObj.result[0]) ? dataObj.result : dataObj.result.map(x => [x]);
+                matrix.forEach((rowVals, rowIdx) => {
+                    rowVals.forEach((val, colIdx) => {
+                        const col = String.fromCharCode(startCol.charCodeAt(0) + colIdx);
+                        const row = startRow + rowIdx;
+                        placeValue(col, row, val);
+                    });
+                });
+            }
+        }
+
+        async function startDemo(index) {
+            const func = functions[index];
+            let data = func.data;
+
+            if (!data) {
+                data = {
+                    target: 'A1',
+                    formula: '=' + func.name + '(...)',
+                    result: '#DEMO',
+                    highlight: [],
+                    steps: ["Select cell.", "Type formula syntax.", "Function is executed.", "Result returned."]
+                };
+            }
+
+            demoTitle.textContent = `${func.name} Function Demo`;
+            createGrid(data);
+            modal.classList.add('active');
+
+            statusText.textContent = data.steps[0] || "Selecting cell...";
+            await wait(800);
+
+            const targetCell = document.getElementById(`cell-${data.target}`);
+            if (targetCell) targetCell.classList.add('active');
+
+            statusText.textContent = data.steps[1] || "Typing formula...";
+            await wait(500);
+            await typeText(data.formula);
+
+            if (data.highlight && data.highlight.length > 0) {
+                statusText.textContent = data.steps[2] || "Referencing cells...";
+                data.highlight.forEach(id => {
+                    const el = document.getElementById(`cell-${id}`);
+                    if (el) el.classList.add('highlight');
+                });
+                await wait(1500);
+            }
+
+            statusText.textContent = data.steps[3] || "Calculating result...";
+            await wait(800);
+
+            if (targetCell) {
+                targetCell.textContent = data.result;
+                targetCell.style.backgroundColor = 'rgba(16, 185, 129, 0.2)';
+                setTimeout(() => targetCell.style.backgroundColor = '#fff', 300);
+            }
+
+            if (data.highlight) {
+                data.highlight.forEach(id => {
+                    const el = document.getElementById(`cell-${id}`);
+                    if (el) el.classList.remove('highlight');
+                });
+            }
+            statusText.textContent = "Done!";
+        }
+
+        init();
+    </script>
+</body>
+</html>
