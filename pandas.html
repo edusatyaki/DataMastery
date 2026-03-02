@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataMastery | Pandas Master</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Matched to DataMastery Hub */
+            --bg-color: #0b0f19; 
+            --card-bg: #131826; 
+            --text-primary: #f8fafc; 
+            --text-secondary: #94a3b8;
+            --border-color: #2a3143; 
+            --code-font: 'Fira Code', monospace;
+            
+            /* Pandas Pink/Orange Accent */
+            --accent-color: #ec4899; 
+            --accent-glow: rgba(236, 72, 153, 0.5);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body { 
+            font-family: 'Outfit', sans-serif; 
+            background-color: var(--bg-color); 
+            color: var(--text-primary); 
+            padding-bottom: 100px; 
+            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        /* --- GLOBAL NAVBAR --- */
+        .global-nav {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 1rem 4rem; background: rgba(11, 15, 25, 0.95); backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 9999;
+        }
+        .global-nav .logo { font-size: 1.5rem; font-weight: 700; color: #818cf8; text-decoration: none; }
+        .global-nav .logo span { color: #f8fafc; }
+        .global-nav .nav-links { display: flex; gap: 2rem; font-weight: 500; }
+        .global-nav .nav-links a { color: var(--text-secondary); text-decoration: none; transition: 0.2s; }
+        .global-nav .nav-links a:hover { color: #fff; }
+        .btn-back { background: #2a3143; color: #fff; padding: 0.5rem 1rem; border-radius: 6px; text-decoration: none; font-size: 0.9rem; transition: 0.2s;}
+        .btn-back:hover { background: #3b445e; }
+
+        /* --- MODULE STYLES --- */
+        .ambient-light { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: -1; background: radial-gradient(circle at 50% 0%, rgba(236, 72, 153, 0.08) 0%, transparent 50%); }
+        
+        .progress-container { 
+            position: sticky; top: 65px; width: 100%; z-index: 1000; 
+            background: rgba(19, 24, 38, 0.95); backdrop-filter: blur(10px); 
+            border-bottom: 1px solid var(--border-color); padding: 1rem 2rem; 
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; 
+        }
+        .progress-info { font-size: 0.9rem; color: var(--text-secondary); font-weight: 600; white-space: nowrap; }
+        .progress-bar-wrapper { flex: 1; min-width: 150px; margin: 0 10px; background: rgba(0,0,0,0.5); height: 6px; border-radius: 3px; overflow: hidden; }
+        .progress-bar-fill { height: 100%; background: var(--accent-color); width: 0%; transition: width 0.4s ease; border-radius: 2px; }
+        .reset-btn { background: transparent; border: 1px solid #da3633; color: #da3633; padding: 4px 12px; border-radius: 4px; font-size: 0.75rem; cursor: pointer; transition: 0.2s; }
+        .reset-btn:hover { background: #da3633; color: #fff; }
+
+        header { padding: 3rem 2rem; text-align: center; }
+        h1 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 700; color: #f0f6fc; margin-bottom: 0.5rem; }
+
+        .controls-wrapper { max-width: 1200px; margin: 1rem auto; display: flex; gap: 1rem; padding: 0 2rem; flex-wrap: wrap; }
+        .search-input, .filter-select { flex: 1; padding: 0.8rem 1rem; border-radius: 6px; border: 1px solid var(--border-color); background: var(--card-bg); color: #fff; font-family: var(--code-font); font-size: 0.9rem; min-width: 200px; }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+        .table-wrapper { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 700px; }
+        th { text-align: left; padding: 1rem; color: var(--text-secondary); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid var(--border-color); background: #0b0f19; }
+        td { padding: 1rem; border-bottom: 1px solid var(--border-color); vertical-align: middle; font-size: 0.95rem; }
+        tr:hover { background: rgba(255,255,255,0.02); }
+        
+        .func-name { font-family: var(--code-font); color: var(--accent-color); font-weight: 500; font-size: 1rem; }
+        .desc-text { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5; }
+        
+        /* Modal & Editor */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: 0.2s; z-index: 2000; padding: 20px; }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        
+        .notebook-window { width: 100%; max-width: 900px; background: #fff; border-radius: 8px; display: flex; flex-direction: column; height: 85vh; color: #000; overflow: hidden; box-shadow: 0 50px 100px rgba(0,0,0,0.5); }
+        .notebook-header { background: #f8f9fa; padding: 8px 20px; border-bottom: 1px solid #e1e4e8; font-size: 0.85rem; color: #586069; display: flex; justify-content: space-between; align-items: center; border-top: 3px solid var(--accent-color);}
+        .notebook-body { flex: 1; overflow-y: auto; padding: 30px; font-family: var(--code-font); font-size: 14px; background: #fff; }
+
+        .cell { margin-bottom: 25px; display: block; }
+        .cell-input { display: flex; gap: 10px; margin-bottom: 8px; }
+        .prompt { color: #d0d0d0; user-select: none; width: 50px; text-align: right; font-size: 13px; font-family: monospace; padding-top: 4px; }
+        .input-area { flex: 1; background: #f7f7f7; border: 1px solid #e0e0e0; border-radius: 4px; padding: 10px; color: #333; white-space: pre-wrap; position: relative; line-height: 1.5; }
+        .input-area.active { border-left: 4px solid var(--accent-color); }
+        
+        /* File Preview */
+        .file-preview { margin-left: 60px; margin-bottom: 25px; border: 1px solid #e1e4e8; border-radius: 6px; overflow: hidden; display: none; }
+        .file-header { background: #f6f8fa; padding: 5px 10px; font-family: sans-serif; font-size: 12px; font-weight: 600; color: #586069; border-bottom: 1px solid #e1e4e8; display: flex; gap: 6px; align-items: center; }
+        .file-content { padding: 10px; background: #fff; font-family: 'Fira Code', monospace; font-size: 12px; color: #24292e; white-space: pre; overflow-x: auto; }
+
+        /* Join Tables Preview */
+        .join-setup-container { margin-left: 60px; margin-bottom: 25px; display: none; }
+        .join-tables-wrapper { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 10px; }
+        .df-card { flex: 1; min-width: 250px; border: 1px solid #e1e4e8; border-radius: 6px; overflow: hidden; }
+        .df-card-header { background: #f6f8fa; padding: 5px 10px; font-weight: 600; font-size: 12px; border-bottom: 1px solid #e1e4e8; color: #586069; }
+        .df-card-body { padding: 10px; overflow-x: auto; background: #fff; }
+
+        .output-area { margin-left: 60px; font-family: sans-serif; font-size: 13px; color: #333; overflow-x: auto; }
+        .dataframe { border: none; border-collapse: collapse; border-spacing: 0; color: black; font-size: 12px; table-layout: fixed; width: auto;}
+        .dataframe thead { border-bottom: 1px solid #c8c8c8; vertical-align: bottom; }
+        .dataframe tr, .dataframe th, .dataframe td { text-align: right; vertical-align: middle; padding: 0.5em 0.5em; line-height: normal; white-space: normal; max-width: none; border: none; }
+        .dataframe th { font-weight: bold; background: #f5f5f5;}
+        .dataframe tbody tr:nth-child(even) { background: #fafafa; }
+        .dataframe tbody tr:hover { background: rgba(236, 72, 153, 0.1); }
+
+        .kw { color: #cf222e; font-weight: bold; }
+        .str { color: #0a3069; }
+        .num { color: #0550ae; }
+        .comment { color: #22863a; font-style: italic; display: block; margin-bottom: 5px; }
+
+        .play-btn { background: transparent; border: 1px solid var(--accent-color); color: var(--accent-color); width: 32px; height: 32px; border-radius: 4px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
+        .play-btn:hover { background: var(--accent-color); color: #fff; }
+        .checkbox-custom { width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent-color); }
+        .type-badge { padding: 2px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: 700; border: 1px solid; }
+
+        /* --- GLOBAL FOOTER --- */
+        .global-footer { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(11, 15, 25, 0.95); backdrop-filter: blur(5px); border-top: 1px solid var(--border-color); padding: 1rem; text-align: center; font-size: 0.9rem; z-index: 1000; color: var(--text-secondary); }
+        
+        @media (max-width: 768px) { .global-nav { padding: 1rem; flex-direction: column; gap: 10px; } .progress-container { top: 110px; } }
+    </style>
+</head>
+<body>
+
+    <nav class="global-nav">
+        <a href="index.html" class="logo">Data<span>Mastery</span></a>
+        <div class="nav-links">
+            <a href="index.html#modules">Modules</a>
+            <a href="index.html#progress">Dashboard</a>
+        </div>
+        <a href="index.html" class="btn-back">&larr; Back to Hub</a>
+    </nav>
+
+    <div class="ambient-light"></div>
+    <div class="progress-container">
+        <span class="progress-info">Pandas Mastery</span>
+        <div class="progress-bar-wrapper"><div id="progress-bar-fill" class="progress-bar-fill"></div></div>
+        <span id="progress-text" class="progress-info">0/120</span>
+        <button class="reset-btn" onclick="resetProgress()">Reset</button>
+    </div>
+
+    <header>
+        <h1>Pandas Master 🐼</h1>
+        <p style="color: var(--text-secondary)">Exact syntax. Deep-tested logic. Verified DataFrame outputs.</p>
+    </header>
+
+    <div class="controls-wrapper">
+        <input type="text" id="searchInput" class="search-input" placeholder="Search method...">
+        <select id="catFilter" class="filter-select">
+            <option value="all">All Chapters</option>
+            <option value="IO">1. Input / Output</option>
+            <option value="Core">2. Core Basics</option>
+            <option value="Exploration">3. Exploration</option>
+            <option value="Selection">4. Selection</option>
+            <option value="Cleaning">5. Cleaning</option>
+            <option value="Transformation">6. Transformation</option>
+            <option value="Aggregation">7. Aggregation</option>
+            <option value="Merging">8. Merging</option>
+            <option value="Time">9. Time Series</option>
+        </select>
+    </div>
+
+    <div class="container">
+        <div class="table-wrapper">
+            <table>
+                <thead><tr><th width="50">✓</th><th width="120">Category</th><th width="200">Method</th><th>Explanation</th><th width="80">Demo</th></tr></thead>
+                <tbody id="master-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modal">
+        <div class="notebook-window">
+            <div class="notebook-header">
+                <span>Pandas_Deep_Dive.ipynb</span>
+                <button onclick="closeModal()" style="background:none; border:none; cursor:pointer; font-size:1.2rem; color:#586069;">×</button>
+            </div>
+            <div class="notebook-body">
+                
+                <div class="cell" id="init-cell">
+                    <div class="cell-input">
+                        <div class="prompt">In [1]:</div>
+                        <div class="input-area"><span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+data = {
+    <span class="str">'EmpID'</span>: [<span class="num">101</span>, <span class="num">102</span>, <span class="num">103</span>, <span class="num">104</span>],
+    <span class="str">'Name'</span>: [<span class="str">'Alice'</span>, <span class="str">'Bob'</span>, <span class="str">'Charlie'</span>, <span class="str">'David'</span>],
+    <span class="str">'Dept'</span>: [<span class="str">'IT'</span>, <span class="str">'Sales'</span>, <span class="str">'IT'</span>, <span class="str">'HR'</span>],
+    <span class="str">'Salary'</span>: [<span class="num">70000</span>, <span class="num">85000</span>, <span class="num">70000</span>, <span class="num">60000</span>],
+    <span class="str">'Date'</span>: [<span class="str">'2023-01-01'</span>, <span class="str">'2023-02-15'</span>, <span class="str">'2023-01-01'</span>, <span class="str">'2023-03-10'</span>]
+}
+df = pd.DataFrame(data)
+df</div>
+                    </div>
+                    <div class="output-area">
+                        <table class="dataframe"><thead><tr style="text-align: right;"><th></th><th>EmpID</th><th>Name</th><th>Dept</th><th>Salary</th><th>Date</th></tr></thead><tbody><tr><th>0</th><td>101</td><td>Alice</td><td>IT</td><td>70000</td><td>2023-01-01</td></tr><tr><th>1</th><td>102</td><td>Bob</td><td>Sales</td><td>85000</td><td>2023-02-15</td></tr><tr><th>2</th><td>103</td><td>Charlie</td><td>IT</td><td>70000</td><td>2023-01-01</td></tr><tr><th>3</th><td>104</td><td>David</td><td>HR</td><td>60000</td><td>2023-03-10</td></tr></tbody></table>
+                    </div>
+                </div>
+
+                <div class="file-preview" id="source-container">
+                    <div class="file-header">
+                        <span id="source-icon">📄</span> <span id="source-title">data.csv</span>
+                    </div>
+                    <div class="file-content" id="source-body"></div>
+                </div>
+
+                <div class="join-setup-container" id="join-container">
+                    <div class="input-area" style="border:none; padding:0; background:none;">
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="comment"># Creating two DataFrames for Join examples</span>
+df1 = pd.DataFrame({'Key': ['A', 'B', 'C'], 'Val1': [1, 2, 3]})
+df2 = pd.DataFrame({'Key': ['B', 'C', 'D'], 'Val2': [4, 5, 6]})
+                    </div>
+                    <div class="join-tables-wrapper">
+                        <div class="df-card">
+                            <div class="df-card-header">df1 (Left)</div>
+                            <div class="df-card-body" id="join-t1"></div>
+                        </div>
+                        <div class="df-card">
+                            <div class="df-card-header">df2 (Right)</div>
+                            <div class="df-card-body" id="join-t2"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="cell">
+                    <div class="cell-input">
+                        <div class="prompt" id="prompt-2">In [2]:</div>
+                        <div class="input-area active" id="code-box"></div>
+                    </div>
+                    <div class="output-area" id="output-box"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="global-footer">
+        DataMastery Hub | Ideation & Development by Satyaki Das
+    </footer>
+
+    <script>
+        // HTML TABLE GENERATORS FOR PANDAS OUTPUTS
+        function createTable(headers, rows, indexLabels) {
+            let hHtml = headers.map(h => `<th>${h}</th>`).join('');
+            let rHtml = rows.map((r, i) => {
+                let idx = indexLabels ? indexLabels[i] : i;
+                let dHtml = r.map(d => {
+                    if(String(d) === 'NaN') return '<span style="color:#aaa">NaN</span>';
+                    return `<td>${d}</td>`;
+                }).join('');
+                return `<tr><th>${idx}</th>${dHtml}</tr>`;
+            }).join('');
+            return `<table class="dataframe"><thead><tr style="text-align: right;"><th></th>${hHtml}</tr></thead><tbody>${rHtml}</tbody></table>`;
+        }
+        
+        function createSeries(data, indexLabels, dtype) {
+             let rows = data.map((d, i) => {
+                let idx = indexLabels ? indexLabels[i] : i;
+                if(String(d) === 'NaN') d = '<span style="color:#aaa">NaN</span>';
+                return `<tr><th>${idx}</th><td>${d}</td></tr>`;
+             }).join('');
+             return `<table class="dataframe"><tbody>${rows}</tbody></table><div style="font-size:11px; margin-top:4px; color:#555">dtype: ${dtype || 'object'}</div>`;
+        }
+
+        // FULL 120 METHOD DATASET
+        const methods = [
+            // --- 1. IO ---
+            { cat: 'IO', name: 'pd.read_csv()', desc: 'Read a CSV file.', sourceTitle: 'data.csv', sourceIcon: '📄', source: `EmpID,Name,Dept,Salary,Date\n101,Alice,IT,70000,2023-01-01\n102,Bob,Sales,85000,2023-02-15\n103,Charlie,IT,70000,2023-01-01\n104,David,HR,60000,2023-03-10`, code: "# Read CSV into DataFrame\ndf = pd.read_csv('data.csv')", out: createTable(['EmpID','Name','Dept','Salary','Date'], [[101,'Alice','IT',70000,'2023-01-01'],[102,'Bob','Sales',85000,'2023-02-15'],[103,'Charlie','IT',70000,'2023-01-01'],[104,'David','HR',60000,'2023-03-10']]) },
+            { cat: 'IO', name: 'pd.read_json()', desc: 'Read a JSON file.', sourceTitle: 'data.json', sourceIcon: '{}', source: `[\n  {"EmpID":101, "Name":"Alice", "Dept":"IT"},\n  {"EmpID":102, "Name":"Bob", "Dept":"Sales"}\n]`, code: "# Parse JSON structure\ndf = pd.read_json('data.json')", out: createTable(['EmpID','Name','Dept','Salary'], [[101,'Alice','IT',70000],[102,'Bob','Sales',85000],[103,'Charlie','IT',70000],[104,'David','HR',60000]]) },
+            { cat: 'IO', name: 'pd.read_sql()', desc: 'Read SQL query.', sourceTitle: 'employees.db', sourceIcon: '🗄️', source: `SELECT * FROM employees WHERE Salary > 65000`, code: "# Execute SQL query\ndf = pd.read_sql(query, conn)", out: createTable(['EmpID','Name','Salary'], [[101,'Alice',70000],[102,'Bob',85000],[103,'Charlie',70000]]) },
+            { cat: 'IO', name: 'pd.read_excel()', desc: 'Read Excel file.', sourceTitle: 'data.xlsx [Sheet1]', sourceIcon: '📊', source: `(Binary Excel Data)`, code: "# Load Excel worksheet\ndf = pd.read_excel('data.xlsx')", out: '[DataFrame Loaded from Excel]' },
+            { cat: 'IO', name: 'pd.read_xml()', desc: 'Read XML document.', sourceTitle: 'data.xml', sourceIcon: '</>', source: `<root><row>...</row></root>`, code: "# Parse XML tree\ndf = pd.read_xml('data.xml')", out: createTable(['EmpID','Name','Dept'], [[101,'Alice','IT'],[102,'Bob','Sales'],[103,'Charlie','IT'],[104,'David','HR']]) },
+            { cat: 'IO', name: 'pd.read_html()', desc: 'Read HTML tables.', sourceTitle: 'http://site.com', sourceIcon: '🌐', source: `<table>...</table>`, code: "# Scrape tables from URL\ndfs = pd.read_html('url')", out: '[DataFrame 0, DataFrame 1...]' },
+            { cat: 'IO', name: 'pd.read_clipboard()', desc: 'Read text from clipboard.', sourceTitle: 'Clipboard', sourceIcon: '📋', source: `(Copied Text)`, code: "# Paste data from buffer\npd.read_clipboard()", out: createTable(['A','B'], [[1,2],[3,4]]) },
+            { cat: 'IO', name: 'to_csv()', desc: 'Write object to CSV.', code: "# Export to CSV\ndf.to_csv('out.csv')", out: 'None' },
+            { cat: 'IO', name: 'to_excel()', desc: 'Write object to Excel.', code: "# Export to Excel\ndf.to_excel('out.xlsx')", out: 'None' },
+            { cat: 'IO', name: 'to_json()', desc: 'Write object to JSON.', code: "# Dump to JSON string\ndf.to_json()", out: '{"EmpID":{"0":101,"1":102...},"Name":...}' },
+            { cat: 'IO', name: 'to_sql()', desc: 'Write to SQL.', code: "# Commit to database\ndf.to_sql('table', con)", out: 'None' },
+            { cat: 'IO', name: 'to_parquet()', desc: 'Write to Parquet.', code: "# Save as binary Parquet\ndf.to_parquet('out.parquet')", out: 'None' },
+            { cat: 'IO', name: 'to_pickle()', desc: 'Pickle object.', code: "# Serialize object\ndf.to_pickle('out.pkl')", out: 'None' },
+
+            // 2. Core - Inspection
+            { cat: 'Core', name: 'head()', desc: 'First n rows.', code: "# Preview first 2 rows\ndf.head(2)", out: createTable(['EmpID','Name','Dept','Salary','Date'],[[101,'Alice','IT',70000,'2023-01-01'],[102,'Bob','Sales',85000,'2023-02-15']]) },
+            { cat: 'Core', name: 'tail()', desc: 'Last n rows.', code: "# Preview last 2 rows\ndf.tail(2)", out: createTable(['EmpID','Name','Dept','Salary','Date'],[[103,'Charlie','IT',70000,'2023-01-01'],[104,'David','HR',60000,'2023-03-10']], [2,3]) },
+            { cat: 'Core', name: 'info()', desc: 'DataFrame summary.', code: "# Check memory & types\ndf.info()", out: `<div style="font-family: monospace; white-space: pre; font-size: 11px; line-height: 1.4;">&lt;class 'pandas.core.frame.DataFrame'&gt;\nRangeIndex: 4 entries, 0 to 3\nData columns (total 5 columns):\n #   Column  Non-Null Count  Dtype \n---  ------  --------------  ----- \n 0   EmpID   4 non-null      int64 \n 1   Name    4 non-null      object\n 2   Dept    4 non-null      object\n 3   Salary  4 non-null      int64 \n 4   Date    4 non-null      object\ndtypes: int64(2), object(3)\nmemory usage: 288.0 bytes</div>` },
+            { cat: 'Core', name: 'describe()', desc: 'Statistics summary.', code: "# Numeric stats summary\ndf.describe()", out: createTable(['EmpID','Salary'], [['4.0','4.0'],['102.5','71250.0'],['1.29','10307.8'],['101.0','60000.0'],['101.75','67500.0'],['102.5','70000.0'],['103.25','73750.0'],['104.0','85000.0']], ['count','mean','std','min','25%','50%','75%','max']) },
+            { cat: 'Core', name: 'shape', desc: 'Dimensions.', code: "# Rows, Columns\ndf.shape", out: '(4, 5)' },
+            { cat: 'Core', name: 'dtypes', desc: 'Data types.', code: "# Column types\ndf.dtypes", out: createTable(['Dtype'],[['int64'],['object'],['object'],['int64'],['object']], ['EmpID','Name','Dept','Salary','Date']) },
+            { cat: 'Core', name: 'columns', desc: 'Column labels.', code: "# Get headers\ndf.columns", out: "Index(['EmpID', 'Name', 'Dept', 'Salary', 'Date'], dtype='object')" },
+            { cat: 'Core', name: 'index', desc: 'Index labels.', code: "# Get row labels\ndf.index", out: 'RangeIndex(start=0, stop=4, step=1)' },
+            { cat: 'Core', name: 'values', desc: 'Numpy representation.', code: "# Get raw array\ndf.values", out: "<div style='font-size:11px'>array([[101, 'Alice', 'IT', 70000, '2023-01-01'],<br>       [102, 'Bob', 'Sales', 85000, '2023-02-15'],<br>       [103, 'Charlie', 'IT', 70000, '2023-01-01'],<br>       [104, 'David', 'HR', 60000, '2023-03-10']], dtype=object)</div>" },
+            { cat: 'Core', name: 'axes', desc: 'List of axes.', code: "# List row/col axes\ndf.axes", out: '[RangeIndex(start=0, stop=4, step=1), Index([\'EmpID\', \'Name\', \'Dept\', \'Salary\', \'Date\'], dtype=\'object\')]' },
+            { cat: 'Core', name: 'ndim', desc: 'Number of dimensions.', code: "# 2 for DF, 1 for Series\ndf.ndim", out: '2' },
+            { cat: 'Core', name: 'size', desc: 'Total elements.', code: "# Cell count\ndf.size", out: '20' },
+            { cat: 'Core', name: 'empty', desc: 'Is DataFrame empty?', code: "# Check if empty\ndf.empty", out: 'False' },
+            { cat: 'Core', name: 'memory_usage()', desc: 'Memory usage.', code: "# Bytes per col\ndf.memory_usage()", out: createSeries([128, 32, 32, 32, 32, 32], ['Index','EmpID','Name','Dept','Salary','Date'], 'int64') },
+            { cat: 'Core', name: 'pd.DataFrame()', desc: 'Create DataFrame.', code: "# Init new DF\npd.DataFrame({'A':[1]})", out: createTable(['A'], [[1]]) },
+            { cat: 'Core', name: 'pd.Series()', desc: 'Create Series.', code: "# Init Series\npd.Series([10])", out: '0 10<br>dtype: int64' },
+
+            // 3. Exploration - Stats
+            { cat: 'Exploration', name: 'mean()', desc: 'Mean of values.', code: "# Avg salary\ndf['Salary'].mean()", out: '71250.0' },
+            { cat: 'Exploration', name: 'median()', desc: 'Median.', code: "# Middle value\ndf['Salary'].median()", out: '70000.0' },
+            { cat: 'Exploration', name: 'mode()', desc: 'Mode.', code: "# Most frequent dept\ndf['Dept'].mode()", out: '0    IT<br>dtype: object' },
+            { cat: 'Exploration', name: 'min()', desc: 'Minimum.', code: "# Lowest salary\ndf['Salary'].min()", out: '60000' },
+            { cat: 'Exploration', name: 'max()', desc: 'Maximum.', code: "# Highest salary\ndf['Salary'].max()", out: '85000' },
+            { cat: 'Exploration', name: 'sum()', desc: 'Sum.', code: "# Total payroll\ndf['Salary'].sum()", out: '285000' },
+            { cat: 'Exploration', name: 'count()', desc: 'Count non-NA.', code: "# Count valid entries\ndf.count()", out: createSeries([4,4,4,4,4], ['EmpID','Name','Dept','Salary','Date'], 'int64') },
+            { cat: 'Exploration', name: 'std()', desc: 'Standard deviation.', code: "# Spread of salary\ndf['Salary'].std()", out: '10307.76' },
+            { cat: 'Exploration', name: 'var()', desc: 'Variance.', code: "# Variance calc\ndf['Salary'].var()", out: '106250000.0' },
+            { cat: 'Exploration', name: 'sem()', desc: 'Std error of mean.', code: "# Standard Error\ndf['Salary'].sem()", out: '5153.88' },
+            { cat: 'Exploration', name: 'skew()', desc: 'Skewness.', code: "# Skew distribution\ndf['Salary'].skew()", out: '0.48' },
+            { cat: 'Exploration', name: 'kurt()', desc: 'Kurtosis.', code: "# Kurtosis calc\ndf['Salary'].kurt()", out: '-1.08' },
+            { cat: 'Exploration', name: 'quantile()', desc: 'Quantile.', code: "# 50th percentile\ndf['Salary'].quantile(0.5)", out: '70000.0' },
+            { cat: 'Exploration', name: 'cov()', desc: 'Covariance.', code: "# Covariance matrix\ndf[['Salary','EmpID']].cov()", out: createTable(['Salary','EmpID'], [[1.06e8, -7500], [-7500, 1.66]], ['Salary','EmpID']) },
+            { cat: 'Exploration', name: 'corr()', desc: 'Correlation.', code: "# Pearson correlation\ndf.corr(numeric_only=True)", out: createTable(['EmpID','Salary'], [[1.0, -0.57], [-0.57, 1.0]], ['EmpID', 'Salary']) },
+            { cat: 'Exploration', name: 'value_counts()', desc: 'Unique counts.', code: "# Count per Dept\ndf['Dept'].value_counts()", out: createSeries([2,1,1], ['IT','Sales','HR'], 'int64') },
+            { cat: 'Exploration', name: 'nunique()', desc: 'Count unique.', code: "# Unique entries count\ndf.nunique()", out: createSeries([4,4,3,3,3], ['EmpID','Name','Dept','Salary','Date'], 'int64') },
+            { cat: 'Exploration', name: 'unique()', desc: 'Unique values.', code: "# Get unique depts\ndf['Dept'].unique()", out: "array(['IT', 'Sales', 'HR'], dtype=object)" },
+            { cat: 'Exploration', name: 'nlargest()', desc: 'Top n values.', code: "# Top 2 Salaries\ndf.nlargest(2, 'Salary')", out: createTable(['EmpID','Name','Salary'], [[102,'Bob',85000],[101,'Alice',70000]], [1,0]) },
+            { cat: 'Exploration', name: 'nsmallest()', desc: 'Bottom n values.', code: "# Bottom 2 Salaries\ndf.nsmallest(2, 'Salary')", out: createTable(['EmpID','Name','Salary'], [[104,'David',60000],[101,'Alice',70000]], [3,0]) },
+            { cat: 'Exploration', name: 'idxmax()', desc: 'Index of max.', code: "# Row idx of max salary\ndf['Salary'].idxmax()", out: '1' },
+            { cat: 'Exploration', name: 'idxmin()', desc: 'Index of min.', code: "# Row idx of min salary\ndf['Salary'].idxmin()", out: '3' },
+
+            // 4. Selection
+            { cat: 'Selection', name: 'loc[]', desc: 'Label select.', code: "# Select Alice row by label\ndf.loc[0, 'Name']", out: "'Alice'" },
+            { cat: 'Selection', name: 'iloc[]', desc: 'Pos select.', code: "# Select Row 0, Col 1\ndf.iloc[0, 1]", out: "'Alice'" },
+            { cat: 'Selection', name: 'at[]', desc: 'Scalar label.', code: "# Fast get scalar\ndf.at[0, 'Salary']", out: '70000' },
+            { cat: 'Selection', name: 'iat[]', desc: 'Scalar pos.', code: "# Fast get pos scalar\ndf.iat[0, 3]", out: '70000' },
+            { cat: 'Selection', name: 'query()', desc: 'Query string.', code: "# SQL-style query\ndf.query('Salary > 80000')", out: createTable(['Name','Salary'], [['Bob',85000]], [1]) },
+            { cat: 'Selection', name: 'isin()', desc: 'Check values.', code: "# Filter by list\ndf[df['Dept'].isin(['IT'])]", out: createTable(['Name','Dept'], [['Alice','IT'],['Charlie','IT']], [0,2]) },
+            { cat: 'Selection', name: 'filter()', desc: 'Subset items.', code: "# Select specific columns\ndf.filter(items=['Name'])", out: createTable(['Name'], [['Alice'],['Bob'],['Charlie'],['David']]) },
+            { cat: 'Selection', name: 'drop()', desc: 'Drop items.', code: "# Remove Date col\ndf.drop(columns=['Date'])", out: createTable(['EmpID','Name','Dept','Salary'], [[101,'Alice','IT',70000],[102,'Bob','Sales',85000],[103,'Charlie','IT',70000],[104,'David','HR',60000]]) },
+            { cat: 'Selection', name: 'rename()', desc: 'Rename items.', code: "# Rename col header\ndf.rename(columns={'Name':'Staff'})", out: createTable(['EmpID','Staff','Dept','Salary'], [[101,'Alice','IT',70000],[102,'Bob','Sales',85000],[103,'Charlie','IT',70000],[104,'David','HR',60000]]) },
+            { cat: 'Selection', name: 'set_index()', desc: 'Set index.', code: "# Use EmpID as index\ndf.set_index('EmpID')", out: createTable(['Name','Dept','Salary','Date'], [['Alice','IT',70000,'2023-01-01'],['Bob','Sales',85000,'2023-02-15'],['Charlie','IT',70000,'2023-01-01'],['David','HR',60000,'2023-03-10']], [101,102,103,104]) },
+            { cat: 'Selection', name: 'reset_index()', desc: 'Reset index.', code: "# Restore numerical index\ndf.reset_index()", out: createTable(['index','EmpID','Name','Dept','Salary'], [[0,101,'Alice','IT',70000],[1,102,'Bob','Sales',85000],[2,103,'Charlie','IT',70000],[3,104,'David','HR',60000]]) },
+            { cat: 'Selection', name: 'reindex()', desc: 'Change index.', code: "# Reorder rows\ndf.reindex([3,2,1,0])", out: createTable(['EmpID','Name','Dept','Salary'],[[104,'David','HR',60000],[103,'Charlie','IT',70000],[102,'Bob','Sales',85000],[101,'Alice','IT',70000]], [3,2,1,0]) },
+            { cat: 'Selection', name: 'where()', desc: 'Replace false.', code: "# Keep >70k, else NaN\ndf.where(df['Salary']>70000)", out: createTable(['EmpID','Name','Dept','Salary'], [['NaN','NaN','NaN','NaN'],[102,'Bob','Sales',85000],['NaN','NaN','NaN','NaN'],['NaN','NaN','NaN','NaN']]) },
+            { cat: 'Selection', name: 'mask()', desc: 'Replace true.', code: "# Mask <70k with NaN\ndf.mask(df['Salary']<70000)", out: createTable(['EmpID','Name','Dept','Salary'], [[101,'Alice','IT',70000],[102,'Bob','Sales',85000],[103,'Charlie','IT',70000],['NaN','NaN','NaN','NaN']]) },
+            { cat: 'Selection', name: 'between()', desc: 'Range check.', code: "# Check range\ndf['Salary'].between(65000, 75000)", out: createSeries(['True', 'False', 'True', 'False'], [0,1,2,3], 'bool') },
+
+            // 5. Cleaning
+            { cat: 'Cleaning', name: 'isna()', desc: 'Detect NA.', code: "# Check for nulls\ndf.isna()", out: createTable(['EmpID','Name','Dept'], [['False','False','False'],['False','False','False'],['False','False','False'],['False','False','False']]) },
+            { cat: 'Cleaning', name: 'notna()', desc: 'Detect non-NA.', code: "# Check valid data\ndf.notna()", out: createTable(['EmpID','Name','Dept'], [['True','True','True'],['True','True','True'],['True','True','True'],['True','True','True']]) },
+            { cat: 'Cleaning', name: 'dropna()', desc: 'Drop NA.', code: "# Remove rows with nulls\ndf.dropna()", out: createTable(['EmpID','Name','Dept','Salary','Date'],[[101,'Alice','IT',70000,'2023-01-01'],[102,'Bob','Sales',85000,'2023-02-15'],[103,'Charlie','IT',70000,'2023-01-01'],[104,'David','HR',60000,'2023-03-10']]) },
+            { cat: 'Cleaning', name: 'fillna()', desc: 'Fill NA.', code: "# Replace nulls with 0\ndf.fillna(0)", out: createTable(['EmpID','Name','Dept','Salary','Date'],[[101,'Alice','IT',70000,'2023-01-01'],[102,'Bob','Sales',85000,'2023-02-15'],[103,'Charlie','IT',70000,'2023-01-01'],[104,'David','HR',60000,'2023-03-10']]) },
+            { cat: 'Cleaning', name: 'interpolate()', desc: 'Interpolate.', code: "# Linear interpolation\ndf.interpolate()", out: createTable(['EmpID','Salary'], [[101,70000],[102,85000],[103,70000],[104,60000]]) },
+            { cat: 'Cleaning', name: 'duplicated()', desc: 'Find dupes.', code: "# Check duplicates\ndf.duplicated()", out: createSeries(['False','False','False','False'], [0,1,2,3], 'bool') },
+            { cat: 'Cleaning', name: 'drop_duplicates()', desc: 'Drop dupes.', code: "# Remove duplicates\ndf.drop_duplicates()", out: createTable(['EmpID','Name'],[[101,'Alice'],[102,'Bob'],[103,'Charlie'],[104,'David']]) },
+            { cat: 'Cleaning', name: 'astype()', desc: 'Cast type.', code: "# Cast float\ndf['Salary'].astype(float)", out: createSeries(['70000.0','85000.0','70000.0','60000.0'], [0,1,2,3], 'float64') },
+            { cat: 'Cleaning', name: 'replace()', desc: 'Replace values.', code: "# IT -> Tech\ndf.replace('IT', 'Tech')", out: createTable(['Name','Dept'], [['Alice','Tech'],['Bob','Sales'],['Charlie','Tech'],['David','HR']]) },
+            { cat: 'Cleaning', name: 'clip()', desc: 'Trim values.', code: "# Cap min value\ndf['Salary'].clip(lower=65000)", out: createSeries([70000, 85000, 70000, 65000], [0,1,2,3], 'int64') },
+            { cat: 'Cleaning', name: 'update()', desc: 'Update in place.', code: "# Update from other DF\ndf.update(df)", out: 'None' },
+            { cat: 'Cleaning', name: 'convert_dtypes()', desc: 'Convert types.', code: "# Auto convert\ndf.convert_dtypes()", out: createTable(['EmpID','Name'], [[101,'Alice'],[102,'Bob'],[103,'Charlie'],[104,'David']]) },
+            { cat: 'Cleaning', name: 'infer_objects()', desc: 'Infer types.', code: "# Infer object types\ndf.infer_objects()", out: createTable(['EmpID','Name'], [[101,'Alice'],[102,'Bob'],[103,'Charlie'],[104,'David']]) },
+
+            // 6. Transformation
+            { cat: 'Transformation', name: 'apply()', desc: 'Apply func.', code: "# Add 1 to salary\ndf['Salary'].apply(lambda x: x+1)", out: createSeries([70001,85001,70001,60001], [0,1,2,3], 'int64') },
+            { cat: 'Transformation', name: 'map()', desc: 'Map values.', code: "# Map dict values\ndf['Dept'].map({'IT':'Tech'})", out: createSeries(['Tech','NaN','Tech','NaN'], [0,1,2,3], 'object') },
+            { cat: 'Transformation', name: 'applymap()', desc: 'Elementwise apply.', code: "# Len of strings\ndf[['Name']].applymap(len)", out: createTable(['Name'],[[5],[3],[7],[5]]) },
+            { cat: 'Transformation', name: 'transform()', desc: 'Transform.', code: "# Transform cols\ndf[['Salary']].transform(lambda x: x/1000)", out: createTable(['Salary'],[[70.0],[85.0],[70.0],[60.0]]) },
+            { cat: 'Transformation', name: 'melt()', desc: 'Unpivot.', code: "# Wide to Long\npd.melt(df.head(2), id_vars=['Name'], value_vars=['Dept','Salary'])", out: createTable(['Name','variable','value'], [['Alice','Dept','IT'],['Bob','Dept','Sales'],['Alice','Salary',70000],['Bob','Salary',85000]]) },
+            { cat: 'Transformation', name: 'pivot()', desc: 'Reshape.', code: "# Long to Wide\ndf.pivot(index='Name', columns='Dept', values='Salary')", out: createTable(['HR','IT','Sales'], [['NaN','NaN',85000],['NaN',70000,'NaN'],['NaN',70000,'NaN'],[60000,'NaN','NaN']], ['Bob','Alice','Charlie','David']) },
+            { cat: 'Transformation', name: 'pivot_table()', desc: 'Pivot table.', code: "# Excel-style pivot\ndf.pivot_table(values='Salary', index='Dept')", out: createTable(['Salary'],[[60000],[70000],[85000]], ['HR','IT','Sales']) },
+            { cat: 'Transformation', name: 'stack()', desc: 'Stack cols.', code: "# Cols to index\ndf.head(2).stack()", out: createSeries([101,'Alice','IT',70000,'2023-01-01',102,'Bob'], ['(0, EmpID)','(0, Name)','(0, Dept)','(0, Salary)','(0, Date)','(1, EmpID)','(1, Name)'], 'object') },
+            { cat: 'Transformation', name: 'unstack()', desc: 'Unstack index.', code: "# Index to cols\ndf.head(2).unstack()", out: createSeries([101,102,'Alice','Bob'], ['(EmpID, 0)','(EmpID, 1)','(Name, 0)','(Name, 1)'], 'object') },
+            { cat: 'Transformation', name: 'explode()', desc: 'Explode list.', code: "# Flatten list col\ndf.assign(L=[[1,2]]*4).explode('L').head(4)", out: createTable(['Name','L'], [['Alice',1],['Alice',2],['Bob',1],['Bob',2]]) },
+            { cat: 'Transformation', name: 'get_dummies()', desc: 'One-hot encode.', code: "# Categorical to cols\npd.get_dummies(df['Dept'])", out: createTable(['HR','IT','Sales'], [[0,1,0],[0,0,1],[0,1,0],[1,0,0]]) },
+            { cat: 'Transformation', name: 'crosstab()', desc: 'Frequency table.', code: "# Count matrix\npd.crosstab(df['Dept'], df['Name'])", out: createTable(['Alice','Bob','Charlie','David'], [[1,0,1,0],[0,0,0,1],[0,1,0,0]], ['IT','HR','Sales']) },
+            { cat: 'Transformation', name: 'cut()', desc: 'Binning.', code: "# 3 Equal width bins\npd.cut(df['Salary'], 3)", out: createSeries(['(68333.3, 76666.6]','(76666.6, 85000.0]','(68333.3, 76666.6]','(59975.0, 68333.3]'], [0,1,2,3], 'category') },
+            { cat: 'Transformation', name: 'qcut()', desc: 'Quantile binning.', code: "# 2 Quantile bins\npd.qcut(df['Salary'], 2)", out: createSeries(['(59999.999, 70000.0]','(70000.0, 85000.0]','(59999.999, 70000.0]','(59999.999, 70000.0]'], [0,1,2,3], 'category') },
+            { cat: 'Transformation', name: 'str.lower()', desc: 'Lowercase.', code: "# Lowercase text\ndf['Name'].str.lower()", out: createSeries(['alice','bob','charlie','david'], [0,1,2,3], 'object') },
+            { cat: 'Transformation', name: 'str.upper()', desc: 'Uppercase.', code: "# Uppercase text\ndf['Name'].str.upper()", out: createSeries(['ALICE','BOB','CHARLIE','DAVID'], [0,1,2,3], 'object') },
+            { cat: 'Transformation', name: 'str.contains()', desc: 'Regex match.', code: "# Contains 'a'?\ndf['Name'].str.contains('a')", out: createSeries(['False','False','True','True'], [0,1,2,3], 'bool') },
+            { cat: 'Transformation', name: 'str.split()', desc: 'Split string.', code: "# Split by char\ndf['Date'].str.split('-')", out: createSeries(["['2023','01','01']","['2023','02','15']","['2023','01','01']","['2023','03','10']"], [0,1,2,3], 'object') },
+            { cat: 'Transformation', name: 'str.len()', desc: 'String length.', code: "# Count chars\ndf['Name'].str.len()", out: createSeries([5, 3, 7, 5], [0,1,2,3], 'int64') },
+            { cat: 'Transformation', name: 'str.strip()', desc: 'Strip whitespace.', code: "# Trim spaces\ndf['Name'].str.strip()", out: createSeries(['Alice','Bob','Charlie','David'], [0,1,2,3], 'object') },
+            
+            // 7. Aggregation
+            { cat: 'Aggregation', name: 'groupby()', desc: 'Group data.', code: "# Group object\ndf.groupby('Dept')", out: '<pandas.core.groupby.generic.DataFrameGroupBy object at 0x...>' },
+            { cat: 'Aggregation', name: 'agg()', desc: 'Aggregate.', code: "# Multi aggregation\ndf[['Salary']].agg(['sum', 'mean'])", out: createTable(['Salary'],[[285000],[71250.0]],['sum','mean']) },
+            { cat: 'Aggregation', name: 'filter()', desc: 'Filter groups.', code: "# Keep group if len > 1\ndf.groupby('Dept').filter(lambda x: len(x)>1)", out: createTable(['EmpID','Name','Dept'], [[101,'Alice','IT'],[103,'Charlie','IT']]) },
+            { cat: 'Aggregation', name: 'rolling()', desc: 'Rolling window.', code: "# 2-period Window sum\ndf['Salary'].rolling(2).sum()", out: createSeries(['NaN',155000.0,155000.0,130000.0], [0,1,2,3], 'float64') },
+            { cat: 'Aggregation', name: 'expanding()', desc: 'Expanding window.', code: "# Cumulative max\ndf['Salary'].expanding().max()", out: createSeries([70000.0,85000.0,85000.0,85000.0], [0,1,2,3], 'float64') },
+            { cat: 'Aggregation', name: 'ewm()', desc: 'Exp weighted.', code: "# Exp weighted mean\ndf['Salary'].ewm(span=2).mean()", out: createSeries([70000.0,81250.0,72500.0,63750.0], [0,1,2,3], 'float64') },
+            
+            // 8. Merging
+            { cat: 'Merging', isJoin: true, name: 'merge() (Inner)', desc: 'Intersection of keys.', code: "# Inner Join (A, B) & (B, C) -> B, C\npd.merge(df1, df2, on='Key', how='inner')", out: createTable(['Key','Val1','Val2'], [['B',2,4],['C',3,5]]) },
+            { cat: 'Merging', isJoin: true, name: 'merge() (Left)', desc: 'Keep all left keys.', code: "# Left Join: Keep all df1\npd.merge(df1, df2, on='Key', how='left')", out: createTable(['Key','Val1','Val2'], [['A',1,'NaN'],['B',2,4],['C',3,5]]) },
+            { cat: 'Merging', isJoin: true, name: 'merge() (Right)', desc: 'Keep all right keys.', code: "# Right Join: Keep all df2\npd.merge(df1, df2, on='Key', how='right')", out: createTable(['Key','Val1','Val2'], [['B',2,4],['C',3,5],['D','NaN',6]]) },
+            { cat: 'Merging', isJoin: true, name: 'merge() (Outer)', desc: 'Union of keys.', code: "# Outer Join: Keep all\npd.merge(df1, df2, on='Key', how='outer')", out: createTable(['Key','Val1','Val2'], [['A',1,'NaN'],['B',2,4],['C',3,5],['D','NaN',6]]) },
+            { cat: 'Merging', name: 'join()', desc: 'Join DFs.', code: "# Join on Index\ndf.join(df, lsuffix='_L', rsuffix='_R').head(2)", out: createTable(['EmpID_L','Name_L','EmpID_R','Name_R'], [[101,'Alice',101,'Alice'],[102,'Bob',102,'Bob']]) },
+            { cat: 'Merging', name: 'concat()', desc: 'Concatenate.', code: "# Stack Vertically\npd.concat([df.head(2), df.tail(2)])", out: createTable(['EmpID','Name','Dept'], [[101,'Alice','IT'],[102,'Bob','Sales'],[103,'Charlie','IT'],[104,'David','HR']], [0,1,2,3]) },
+            { cat: 'Merging', name: 'combine_first()', desc: 'Combine.', code: "# Fill nulls\ndf.combine_first(df)", out: createTable(['EmpID','Name'], [[101,'Alice'],[102,'Bob'],[103,'Charlie'],[104,'David']]) },
+            { cat: 'Merging', name: 'update()', desc: 'Modify in place.', code: "# In-place update\ndf.update(df)", out: 'None' },
+            
+            // 9. Time Series
+            { cat: 'Time', name: 'to_datetime()', desc: 'To datetime.', code: "# Convert string to Date\npd.to_datetime(df['Date'])", out: createSeries(['2023-01-01','2023-02-15','2023-01-01','2023-03-10'],[0,1,2,3],'datetime64[ns]') },
+            { cat: 'Time', name: 'dt.year', desc: 'Year.', code: "# Extract Year\npd.to_datetime(df['Date']).dt.year", out: createSeries([2023,2023,2023,2023],[0,1,2,3],'int64') },
+            { cat: 'Time', name: 'dt.month', desc: 'Month.', code: "# Extract Month\npd.to_datetime(df['Date']).dt.month", out: createSeries([1,2,1,3],[0,1,2,3],'int64') },
+            { cat: 'Time', name: 'dt.day', desc: 'Day.', code: "# Extract Day\npd.to_datetime(df['Date']).dt.day", out: createSeries([1,15,1,10],[0,1,2,3],'int64') },
+            { cat: 'Time', name: 'dt.day_name()', desc: 'Day name.', code: "# Day Name\npd.to_datetime(df['Date']).dt.day_name()", out: createSeries(['Sunday','Wednesday','Sunday','Friday'],[0,1,2,3],'object') },
+            { cat: 'Time', name: 'dt.quarter', desc: 'Quarter.', code: "# Extract Quarter\npd.to_datetime(df['Date']).dt.quarter", out: createSeries([1,1,1,1],[0,1,2,3],'int64') },
+            { cat: 'Time', name: 'shift()', desc: 'Shift data.', code: "# Lag by 1\ndf['Salary'].shift(1)", out: createSeries(['NaN',70000.0,85000.0,70000.0],[0,1,2,3],'float64') },
+            { cat: 'Time', name: 'diff()', desc: 'Difference.', code: "# Discrete Diff\ndf['Salary'].diff()", out: createSeries(['NaN',15000.0,-15000.0,-10000.0],[0,1,2,3],'float64') },
+            { cat: 'Time', name: 'pct_change()', desc: 'Percent change.', code: "# % Growth\ndf['Salary'].pct_change()", out: createSeries(['NaN',0.214,-0.176,-0.142],[0,1,2,3],'float64') },
+            { cat: 'Time', name: 'resample()', desc: 'Resample.', code: "# Monthly resample\ndf.set_index(pd.to_datetime(df['Date']))['Salary'].resample('M').count()", out: createSeries([2,1,1],['2023-01-31','2023-02-28','2023-03-31'],'int64') }
+        ];
+
+        // Ensure this tracking prefix matches the Hub!
+        const TRACKING_PREFIX = 'pd-v5-';
+
+        document.getElementById('progress-text').textContent = `0/${methods.length}`;
+
+        function init() {
+            const body = document.getElementById('master-body');
+            methods.forEach((m, i) => {
+                const tr = document.createElement('tr');
+                tr.className = 'func-row';
+                tr.dataset.cat = m.cat;
+                tr.dataset.name = m.name.toLowerCase();
+                const isChecked = localStorage.getItem(`${TRACKING_PREFIX}${m.name}`) === 'true';
+                
+                // Color Logic
+                let catColor = '#ec4899'; // Default Pink
+                if(m.cat === 'IO') catColor = '#238636'; // Green
+                if(m.cat === 'Core') catColor = '#38bdf8'; // Blue
+                if(m.cat === 'Cleaning') catColor = '#da3633'; // Red
+
+                tr.innerHTML = `
+                    <td style="text-align:center"><input type="checkbox" class="checkbox-custom" ${isChecked ? 'checked' : ''} onchange="toggleRead('${m.name}', this)"></td>
+                    <td><span class="type-badge" style="color:${catColor}; border:1px solid ${catColor};">${m.cat.toUpperCase()}</span></td>
+                    <td class="func-name">${m.name}</td>
+                    <td class="desc-text">${m.desc}</td>
+                    <td><button class="play-btn" onclick="runDemo(${i})">▶</button></td>
+                `;
+                body.appendChild(tr);
+            });
+            updateProgress();
+        }
+
+        async function runDemo(i) {
+            const m = methods[i];
+            const codeBox = document.getElementById('code-box');
+            const outBox = document.getElementById('output-box');
+            const initCell = document.getElementById('init-cell');
+            const prompt2 = document.getElementById('prompt-2');
+            
+            const sourceContainer = document.getElementById('source-container');
+            const sourceTitle = document.getElementById('source-title');
+            const sourceBody = document.getElementById('source-body');
+            const sourceIcon = document.getElementById('source-icon');
+
+            const joinContainer = document.getElementById('join-container');
+            const joinT1 = document.getElementById('join-t1');
+            const joinT2 = document.getElementById('join-t2');
+
+            document.getElementById('modal').classList.add('active');
+            
+            // RESET DISPLAY STATES
+            initCell.style.display = 'none';
+            sourceContainer.style.display = 'none';
+            joinContainer.style.display = 'none';
+
+            // Logic: Is this an IO Read method?
+            if (m.cat === 'IO' && m.name.startsWith('pd.read_')) {
+                prompt2.textContent = 'In [1]:';
+                sourceContainer.style.display = 'block';
+                sourceTitle.textContent = m.sourceTitle || 'source_file';
+                sourceBody.textContent = m.source || 'Binary Data';
+                sourceIcon.textContent = m.sourceIcon || '📄';
+            } 
+            // Logic: Is this a Join method?
+            else if (m.isJoin) {
+                prompt2.textContent = 'In [2]:';
+                joinContainer.style.display = 'block';
+                joinT1.innerHTML = createTable(['Key','Val1'], [['A',1],['B',2],['C',3]]);
+                joinT2.innerHTML = createTable(['Key','Val2'], [['B',4],['C',5],['D',6]]);
+            }
+            // Standard Logic
+            else {
+                initCell.style.display = 'block';
+                prompt2.textContent = 'In [2]:';
+            }
+
+            codeBox.textContent = '';
+            outBox.innerHTML = '';
+            
+            for (let char of m.code) {
+                codeBox.textContent += char;
+                await new Promise(r => setTimeout(r, 10));
+            }
+            await new Promise(r => setTimeout(r, 300));
+            outBox.innerHTML = m.out;
+        }
+
+        function toggleRead(name, el) {
+            localStorage.setItem(`${TRACKING_PREFIX}${name}`, el.checked);
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const checked = document.querySelectorAll('.checkbox-custom:checked').length;
+            const pct = Math.round((checked / methods.length) * 100);
+            document.getElementById('progress-bar-fill').style.width = pct + '%';
+            document.getElementById('progress-text').textContent = `${checked}/${methods.length}`;
+        }
+
+        function resetProgress() {
+            if(confirm('Reset all progress?')) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
+
+        function closeModal() { document.getElementById('modal').classList.remove('active'); }
+
+        document.getElementById('searchInput').addEventListener('input', e => {
+            const q = e.target.value.toLowerCase();
+            document.querySelectorAll('.func-row').forEach(row => {
+                row.style.display = row.dataset.name.includes(q) ? '' : 'none';
+            });
+        });
+
+        document.getElementById('catFilter').addEventListener('change', e => {
+            const cat = e.target.value;
+            document.querySelectorAll('.func-row').forEach(row => {
+                row.style.display = (cat === 'all' || row.dataset.cat === cat) ? '' : 'none';
+            });
+        });
+
+        init();
+    </script>
+</body>
+</html>
