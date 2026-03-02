@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -68,7 +68,7 @@
         .search-input, .filter-select { flex: 1; padding: 0.8rem 1rem; border-radius: 6px; border: 1px solid var(--border-color); background: var(--card-bg); color: #fff; font-family: var(--code-font); font-size: 0.9rem; min-width: 200px; }
         
         .container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
-        .table-wrapper { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; overflow-x: auto; }
+        .table-wrapper { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
         table { width: 100%; border-collapse: collapse; min-width: 700px; }
         th { text-align: left; padding: 1rem; color: var(--text-secondary); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid var(--border-color); background: #0b0f19; }
         td { padding: 1rem; border-bottom: 1px solid var(--border-color); vertical-align: middle; font-size: 0.95rem; }
@@ -89,7 +89,7 @@
         .explanation-box { background: #fdf6e3; border-left: 4px solid #d4a373; color: #5e4a30; margin-top: 20px; margin-bottom: 0;}
         
         /* Initial Memory/Variables styling */
-        .schema-container { margin-bottom: 25px; padding: 15px; background: #e8eaed; border-radius: 6px; border: 1px solid #ccc; font-family: sans-serif; }
+        .schema-container { margin-bottom: 25px; padding: 15px; background: #e8eaed; border-radius: 6px; border: 1px solid #ccc; font-family: sans-serif; overflow-x: auto; }
         .schema-title { font-size: 11px; font-weight: 700; color: #555; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 0.5px; }
         .context-table { width: 100%; border-collapse: collapse; font-size: 13px; font-family: var(--code-font); min-width: unset; background: #fff; border-radius: 4px; overflow: hidden; border: 1px solid #ddd; }
         .context-table th { background: #f6f8fa; color: #57606a; font-weight: 600; text-align: left; padding: 8px 12px; border-bottom: 1px solid #d0d7de; font-size: 12px; font-family: sans-serif;}
@@ -110,14 +110,77 @@
         .py-func { color: #dcdcaa; } 
         .py-comment { color: #6a9955; } 
 
-        .play-btn { background: transparent; border: 1px solid var(--accent-color); color: var(--accent-color); width: 32px; height: 32px; border-radius: 4px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
+        .play-btn { background: transparent; border: 1px solid var(--accent-color); color: var(--accent-color); width: 32px; height: 32px; border-radius: 4px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .play-btn:hover { background: var(--accent-color); color: #000; }
-        .checkbox-custom { width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent-color); }
+        .checkbox-custom { width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent-color); flex-shrink: 0; }
 
         /* --- GLOBAL FOOTER --- */
         .global-footer { position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(11, 15, 25, 0.95); backdrop-filter: blur(5px); border-top: 1px solid var(--border-color); padding: 1rem; text-align: center; font-size: 0.9rem; z-index: 1000; color: var(--text-secondary); }
         
-        @media (max-width: 768px) { .global-nav { padding: 1rem; flex-direction: column; gap: 10px; } .progress-container { top: 110px; } }
+        /* --- FULL MOBILE RESPONSIVENESS ADDITIONS --- */
+        @media (max-width: 768px) {
+            /* Adjust Navigation */
+            .global-nav { 
+                padding: 1rem 1.5rem; 
+                flex-direction: column; 
+                gap: 1rem; 
+            }
+            .global-nav .nav-links {
+                gap: 1rem;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .btn-back {
+                width: 100%;
+                text-align: center;
+                margin-top: 0.5rem;
+            }
+
+            /* Un-stick the progress bar on mobile to save vertical screen space */
+            .progress-container { 
+                position: relative; 
+                top: 0; 
+                padding: 1rem 1.5rem;
+                flex-direction: column;
+                text-align: center;
+                gap: 12px;
+            }
+            .progress-bar-wrapper {
+                width: 100%;
+                margin: 0;
+            }
+
+            /* Adjust Headers and Inputs */
+            header { padding: 2rem 1rem 1.5rem; }
+            h1 { font-size: 2.2rem; }
+            
+            .controls-wrapper { 
+                padding: 0 1rem; 
+                flex-direction: column; 
+                gap: 0.75rem;
+            }
+            .search-input, .filter-select { 
+                width: 100%; 
+                min-width: 100%; 
+            }
+
+            /* Adjust Table padding */
+            .container { padding: 0 1rem; }
+            th, td { padding: 0.75rem; font-size: 0.85rem; }
+            .play-btn { width: 36px; height: 36px; }
+
+            /* Adjust Modal to fit screen better */
+            .modal-overlay { padding: 10px; }
+            .notebook-window { height: 92vh; border-radius: 8px; }
+            .notebook-header { padding: 10px 15px; }
+            .notebook-body { padding: 15px; }
+            
+            .info-box { padding: 10px; font-size: 13px; }
+            .input-area { padding: 10px; font-size: 13px; }
+            .output-area { padding: 10px; font-size: 12px; }
+
+            .global-footer { padding: 0.75rem; font-size: 0.8rem; }
+        }
     </style>
 </head>
 <body>
